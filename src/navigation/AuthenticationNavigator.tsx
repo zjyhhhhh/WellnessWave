@@ -1,4 +1,3 @@
-// AuthenticationNavigator.tsx
 import React, { useEffect, useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -9,6 +8,8 @@ import { RootStackParamList } from "../../types";
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 import { NavigationContainer } from "@react-navigation/native";
+import LoginScreen from "../screens/LoginScreen";
+import RegisterScreen from "../screens/RegisterScreen";
 
 const AuthenticationNavigator: React.FC = () => {
 	const [userIsAuthenticated, setUserIsAuthenticated] = useState<boolean | null>(null);
@@ -40,7 +41,11 @@ const AuthenticationNavigator: React.FC = () => {
 				{userIsAuthenticated ? (
 					<Stack.Screen name="Home" component={HomeScreen} />
 				) : (
-					<Stack.Screen name="Welcome" component={WelcomeScreen} />
+					<>
+						<Stack.Screen name="Welcome" component={WelcomeScreen} />
+						<Stack.Screen name="Login" component={LoginScreen} />
+						<Stack.Screen name="Register" component={RegisterScreen} />
+					</>
 				)}
 			</Stack.Navigator>
 		</NavigationContainer>
