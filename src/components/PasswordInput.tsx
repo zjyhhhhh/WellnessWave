@@ -33,6 +33,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
 					right: Spacing * 2,
 					top: Spacing * 3,
 				}}
+				testID="eye-icon"
 			>
 				{isPasswordVisible ? (
 					<Ionicons name="eye-outline" size={24} color="black" />

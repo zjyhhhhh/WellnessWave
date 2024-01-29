@@ -9,7 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../types";
 import AppTextInput from "../components/AppTextInput";
-import { showMessage } from "react-native-flash-message";
+import { showMessage, hideMessage } from "react-native-flash-message";
 import PasswordInput from "../components/PasswordInput";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
@@ -187,6 +187,7 @@ const LoginScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 								marginHorizontal: Spacing,
 							}}
 							onPress={googleLoginHandler}
+							testID="google-login"
 						>
 							<Ionicons name="logo-google" color={Colors.text} size={Spacing * 2} />
 						</TouchableOpacity>
@@ -198,6 +199,7 @@ const LoginScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 								marginHorizontal: Spacing,
 							}}
 							onPress={githubLoginHandler}
+							testID="github-login"
 						>
 							<Ionicons name="logo-github" color={Colors.text} size={Spacing * 2} />
 						</TouchableOpacity>
