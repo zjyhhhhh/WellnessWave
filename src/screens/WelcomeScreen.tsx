@@ -13,7 +13,7 @@ import { RootStackParamList } from "../../types";
 import Spacing from "../constants/Spacing";
 import FontSize from "../constants/FontSize";
 import Colors from "../constants/Colors";
-// import Font from "../constants/Font";
+import Font from "../constants/Font";
 const { height } = Dimensions.get("window");
 
 type Props = NativeStackScreenProps<RootStackParamList, "Welcome">;
@@ -44,7 +44,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 							style={{
 								fontSize: FontSize.xxLarge,
 								color: Colors.primary,
-								// fontFamily: Font["poppins-bold"],
+								fontFamily: Font["poppins-bold"],
 								textAlign: "center",
 							}}
 						>
@@ -89,7 +89,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 						>
 							<Text
 								style={{
-									// fontFamily: Font["poppins-bold"],
+									fontFamily: Font["poppins-bold"],
 									color: Colors.onPrimary,
 									fontSize: FontSize.large,
 									textAlign: "center",
@@ -110,7 +110,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 						>
 							<Text
 								style={{
-									// fontFamily: Font["poppins-bold"],
+									fontFamily: Font["poppins-bold"],
 									color: Colors.text,
 									fontSize: FontSize.large,
 									textAlign: "center",

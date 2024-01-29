@@ -22,8 +22,9 @@
       "!**/node_modules/**",
       "!**/babel.config.js",
       "!**/jest.setup.js",
-      "src/**/*.{js,jsx,ts,tsx}",
-      "!src/constants/*.{js,jsx,ts,tsx}"
+      "src/navigation/*.{js,jsx,ts,tsx}",
+      "src/screens/*.{js,jsx,ts,tsx}",
+      "src/components/*.{js,jsx,ts,tsx}"
     ],
     "setupFiles": ["<rootDir>/jestSetupFile.js"]
   },
