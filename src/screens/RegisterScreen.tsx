@@ -36,8 +36,15 @@ const RegisterScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 			console.log("email: ", email);
 			console.log("username: ", username);
 			console.log("password: ", password);
-			console.log("confirmPassword: ", confirmPassword);
 		}
+	};
+
+	const googleLoginHandler = () => {
+		console.log("google login");
+	};
+
+	const githubLoginHandler = () => {
+		console.log("github login");
 	};
 
 	return (
@@ -181,6 +188,8 @@ const RegisterScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 								borderRadius: Spacing / 2,
 								marginHorizontal: Spacing,
 							}}
+							onPress={googleLoginHandler}
+							testID="google-login"
 						>
 							<Ionicons name="logo-google" color={Colors.text} size={Spacing * 2} />
 						</TouchableOpacity>
@@ -191,6 +200,8 @@ const RegisterScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 								borderRadius: Spacing / 2,
 								marginHorizontal: Spacing,
 							}}
+							onPress={githubLoginHandler}
+							testID="github-login"
 						>
 							<Ionicons name="logo-github" color={Colors.text} size={Spacing * 2} />
 						</TouchableOpacity>
