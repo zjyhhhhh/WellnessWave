@@ -9,38 +9,16 @@ import { act } from "react-dom/test-utils";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// beforeEach(() => {
-// 	AsyncStorage.clear();
-// 	// console.log(`After the data is being reset :`)
-// 	// console.log(AsyncStorage)
-// });
-
-// const localStorageMock = (() => {
-// 	let store: { [key: string]: string } = {};
-
-// 	return {
-// 		getItem: (key: string) => store[key] || null,
-// 		setItem: (key: string, value: string) => {
-// 			store[key] = value.toString();
-// 		},
-// 	};
-// })();
-
-// Object.defineProperty(window, "localStorage", {
-// 	value: localStorageMock,
-// });
-
-// jest.mock("@react-native-async-storage/async-storage", () => ({
-// 	setItem: jest.fn(),
-// 	getItem: jest.fn(),
-// }));
-
 describe("Welcome Screen", () => {
 	it("authenticated, renders Home Screen correctly", async () => {
-		await AsyncStorage.setItem("userToken", "True");
-		const { getByText } = render(<AuthenticationNavigator />);
-		await waitFor(() => {
-			expect(getByText("Home Screen")).toBeTruthy();
+		await act(async () => {
+			await AsyncStorage.setItem("userToken", "True");
+			const { getByTestId } = render(<AuthenticationNavigator />);
+			await waitFor(() => {
+				expect(getByTestId("moment-tab")).toBeDefined();
+				expect(getByTestId("record-tab")).toBeDefined();
+				expect(getByTestId("profile-tab")).toBeDefined();
+			});
 		});
 	});
 	it("unauthenticated, renders Welcome Screen correctly", async () => {
