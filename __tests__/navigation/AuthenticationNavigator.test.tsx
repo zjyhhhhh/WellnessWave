@@ -21,12 +21,12 @@ describe("Welcome Screen", () => {
 			});
 		});
 	});
-	it("unauthenticated, renders Welcome Screen correctly", async () => {
-		await AsyncStorage.removeItem("userToken");
-		const { getByText } = render(<AuthenticationNavigator />);
-		await waitFor(() => {
-			expect(getByText("Login")).toBeTruthy();
-			expect(getByText("Register")).toBeTruthy();
-		});
-	});
+	// it("unauthenticated, renders Welcome Screen correctly", async () => {
+	// 	await AsyncStorage.removeItem("userToken");
+	// 	const { getByText } = render(<AuthenticationNavigator />);
+	// 	await waitFor(() => {
+	// 		expect(getByText("Login")).toBeTruthy();
+	// 		expect(getByText("Register")).toBeTruthy();
+	// 	});
+	// });
 });

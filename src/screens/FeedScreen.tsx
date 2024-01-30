@@ -44,8 +44,12 @@ const FeedScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 				marginTop: Constants.statusBarHeight,
 			}}
 		>
-			<Tab.Screen name="All" component={AllFeedScreen} />
-			<Tab.Screen name="Focus" component={FocusFeedScreen} />
+			<Tab.Screen name="All" component={AllFeedScreen} options={{ tabBarTestID: "all-feed-tab" }} />
+			<Tab.Screen
+				name="Focus"
+				component={FocusFeedScreen}
+				options={{ tabBarTestID: "focus-feed-tab" }}
+			/>
 		</Tab.Navigator>
 	);
 };
