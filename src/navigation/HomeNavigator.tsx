@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import MomentScreen from "../screens/MomentScreen";
+import MomentNavigator from "./MomentNavigator";
 import RecordScreen from "../screens/RecordScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import { Ionicons } from "@expo/vector-icons";
@@ -27,7 +27,7 @@ const HomeNavigator = () => {
 		>
 			<Tab.Screen
 				name="Moment"
-				component={MomentScreen}
+				component={MomentNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<BottomTabBarIcon
