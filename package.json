@@ -24,7 +24,8 @@
       "!**/jest.setup.js",
       "src/navigation/*.{js,jsx,ts,tsx}",
       "src/screens/*.{js,jsx,ts,tsx}",
-      "src/components/*.{js,jsx,ts,tsx}"
+      "src/components/*.{js,jsx,ts,tsx}",
+      "src/utils/*.{js,jsx,ts,tsx}"
     ],
     "setupFiles": [
       "<rootDir>/jestSetupFile.js"
