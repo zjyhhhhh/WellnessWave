@@ -1,4 +1,4 @@
-import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { useState } from "react";
 import Spacing from "../constants/Spacing";
@@ -9,8 +9,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../types";
 import AppTextInput from "../components/AppTextInput";
-import { showMessage, hideMessage } from "react-native-flash-message";
 import PasswordInput from "../components/PasswordInput";
+import { emailVerifier, passwordVerifier } from "../utils/formatVerifier";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 
@@ -19,22 +19,11 @@ const LoginScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 	const [password, setPassword] = useState<string>("");
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-	const formatVerifier = () => {
-		const strongRegex = new RegExp("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$");
-		if (!strongRegex.test(email)) {
-			showMessage({ message: "Please enter a valid email address", type: "danger" });
-			return false;
-		} else if (password.length < 8) {
-			showMessage({ message: "Password must be at least 8 characters", type: "danger" });
-			return false;
-		}
-	};
-
 	const loginHandler = () => {
-		formatVerifier();
-		// TODO: send email and password to backend
-		console.log("email: ", email);
-		console.log("password: ", password);
+		if (emailVerifier(email) && passwordVerifier(password)) {
+			console.log("email: ", email);
+			console.log("password: ", password);
+		}
 	};
 
 	const googleLoginHandler = () => {
