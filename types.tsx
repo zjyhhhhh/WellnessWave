@@ -4,3 +4,9 @@ export type RootStackParamList = {
 	Login: undefined;
 	Register: undefined;
 };
+
+export type MomentStackParamList = {
+	Notification: undefined;
+	Feed: undefined;
+	Search: undefined;
+};
