@@ -1,14 +1,17 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MomentNavigator from "./MomentNavigator";
 import RecordScreen from "../screens/RecordScreen";
-import ProfileScreen from "../screens/ProfileScreen";
 import { Ionicons } from "@expo/vector-icons";
 import { height } from "../constants/Layout";
 import Colors from "../constants/Colors";
 import BottomTabBarIcon from "../components/BottomTabBarIcon";
+import { useEffect, useState } from "react";
+import ProfileNavigator from "./ProfileNavigator";
 const Tab = createBottomTabNavigator();
 
 const HomeNavigator = () => {
+	const [hasNotification, setHasNotification] = useState<boolean>(false);
+
 	return (
 		<Tab.Navigator
 			screenOptions={{
@@ -39,6 +42,7 @@ const HomeNavigator = () => {
 									color={focused ? Colors.primary : Colors.text}
 								/>
 							}
+							hasNotification={false}
 						/>
 					),
 					tabBarTestID: "moment-tab",
@@ -58,6 +62,7 @@ const HomeNavigator = () => {
 									color={focused ? Colors.primary : Colors.text}
 								/>
 							}
+							hasNotification={false}
 						/>
 					),
 					tabBarTestID: "record-tab",
@@ -65,7 +70,7 @@ const HomeNavigator = () => {
 			/>
 			<Tab.Screen
 				name="Profile"
-				component={ProfileScreen}
+				component={ProfileNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<BottomTabBarIcon
@@ -77,6 +82,7 @@ const HomeNavigator = () => {
 									color={focused ? Colors.primary : Colors.text}
 								/>
 							}
+							hasNotification={hasNotification}
 						/>
 					),
 					tabBarTestID: "profile-tab",

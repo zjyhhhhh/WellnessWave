@@ -6,7 +6,13 @@ export type RootStackParamList = {
 };
 
 export type MomentStackParamList = {
-	Notification: undefined;
 	Feed: undefined;
 	Search: undefined;
+};
+
+export type ProfileStackParamList = {
+	Notification: undefined;
+	Main: undefined;
+	Setting: undefined;
+	Edit: undefined;
 };
