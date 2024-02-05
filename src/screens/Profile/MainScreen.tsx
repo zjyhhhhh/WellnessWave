@@ -7,30 +7,12 @@ import { ProfileStackParamList } from "../../../types";
 import FontSize from "../../constants/FontSize";
 import Font from "../../constants/Font";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import MyPostsScreen from "./MyPostsScreen";
+import LikedPostsScreen from "./LikedPostsScreen";
 
 type Props = NativeStackScreenProps<ProfileStackParamList, "Main">;
 
 const Tab = createMaterialTopTabNavigator();
-
-const MyPostsScreen = ({}) => {
-	return (
-		<SafeAreaView>
-			<View>
-				<Text>MyPostsScreen</Text>
-			</View>
-		</SafeAreaView>
-	);
-};
-
-const LikedPostsScreen = ({}) => {
-	return (
-		<SafeAreaView>
-			<View>
-				<Text>LikedPostsScreen</Text>
-			</View>
-		</SafeAreaView>
-	);
-};
 
 const styles = StyleSheet.create({
 	container: {
@@ -134,7 +116,7 @@ const styles = StyleSheet.create({
 	},
 });
 
-const avatarPath = require("../../assets/images/avatar.png");
+const avatarPath = require("../../assets/images/avatar.jpg");
 const userNickname = "Yahh";
 const userName = "123456abc";
 
@@ -147,6 +129,7 @@ const MainScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 						name="notifications-outline"
 						size={28}
 						color="black"
+						testID="notification-button"
 						onPress={() => {
 							navigate("Notification");
 						}}
@@ -213,8 +196,16 @@ const MainScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 							tabBarIndicatorStyle: { backgroundColor: Colors.primary },
 						}}
 					>
-						<Tab.Screen name="My Posts" component={MyPostsScreen} />
-						<Tab.Screen name="Liked" component={LikedPostsScreen} />
+						<Tab.Screen
+							name="My Posts"
+							component={MyPostsScreen}
+							options={{ tabBarTestID: "my-posts-button" }}
+						/>
+						<Tab.Screen
+							name="Liked"
+							component={LikedPostsScreen}
+							options={{ tabBarTestID: "liked-posts-button" }}
+						/>
 					</Tab.Navigator>
 				</View>
 			</View>
