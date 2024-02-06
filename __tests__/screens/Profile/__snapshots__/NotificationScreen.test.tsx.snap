@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Notification Screen renders correctly 1`] = `
-<View>
-  <Text>
-    Notification Screen
-  </Text>
-</View>
-`;
