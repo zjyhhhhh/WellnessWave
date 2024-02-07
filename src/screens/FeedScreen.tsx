@@ -6,19 +6,10 @@ import FontSize from "../constants/FontSize";
 import Colors from "../constants/Colors";
 import { MomentStackParamList } from "../../types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import AllFeedScreen from "./AllFeedScreen";
 
 type Props = NativeStackScreenProps<MomentStackParamList, "Feed">;
 const Tab = createMaterialTopTabNavigator();
-
-const AllFeedScreen = ({}) => {
-	return (
-		<SafeAreaView>
-			<View>
-				<Text>All Screen</Text>
-			</View>
-		</SafeAreaView>
-	);
-};
 
 const FocusFeedScreen = ({}) => {
 	return (
