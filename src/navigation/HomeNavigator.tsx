@@ -7,9 +7,13 @@ import Colors from "../constants/Colors";
 import BottomTabBarIcon from "../components/BottomTabBarIcon";
 import { useEffect, useState } from "react";
 import ProfileNavigator from "./ProfileNavigator";
+import { RootStackParamList } from "../../types";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 const Tab = createBottomTabNavigator();
 
-const HomeNavigator = () => {
+type Props = NativeStackScreenProps<RootStackParamList, "Home">;
+
+const HomeNavigator: React.FC<Props> = ({ navigation: { navigate } }) => {
 	const [hasNotification, setHasNotification] = useState<boolean>(false);
 
 	return (

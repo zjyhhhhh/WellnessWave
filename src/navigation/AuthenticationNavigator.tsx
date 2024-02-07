@@ -17,8 +17,8 @@ const AuthenticationNavigator: React.FC = () => {
 		const checkAuthentication = async () => {
 			try {
 				const userToken = await AsyncStorage.getItem("userToken");
-				setUserIsAuthenticated(!!userToken);
-				setUserIsAuthenticated(true);
+				// setUserIsAuthenticated(!!userToken);
+				setUserIsAuthenticated(false);
 			} catch (error) {
 				console.error("Error checking authentication:", error);
 			}
@@ -45,6 +45,7 @@ const AuthenticationNavigator: React.FC = () => {
 						<Stack.Screen name="Welcome" component={WelcomeScreen} />
 						<Stack.Screen name="Login" component={LoginScreen} />
 						<Stack.Screen name="Register" component={RegisterScreen} />
+						<Stack.Screen name="Home" component={HomeNavigator} />
 					</>
 				)}
 			</Stack.Navigator>

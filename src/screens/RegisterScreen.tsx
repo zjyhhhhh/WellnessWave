@@ -26,16 +26,32 @@ const RegisterScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 	const [isComfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
 
-	const registerHandler = () => {
+	const registerHandler = async () => {
 		if (
 			emailVerifier(email) &&
 			usernameVerifier(username) &&
 			passwordVerifier(password) &&
 			confirmPasswordVerifier(password, confirmPassword)
 		) {
-			console.log("email: ", email);
-			console.log("username: ", username);
-			console.log("password: ", password);
+			const response = await fetch(
+				`${process.env.EXPO_PUBLIC_API_URL}:${process.env.EXPO_PUBLIC_PORT}/users/register`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						username,
+						email,
+						password,
+					}),
+				}
+			);
+			if (response.ok) {
+				navigate("Login");
+			} else {
+				console.log("error");
+			}
 		}
 	};
 
