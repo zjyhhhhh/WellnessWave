@@ -5,7 +5,7 @@ import { height } from "../constants/Layout";
 import Colors from "../constants/Colors";
 import { useCallback } from "react";
 
-const circleSize = height * 0.075;
+const circleSize = height * 0.07;
 
 const styles = StyleSheet.create({
 	circle: {
@@ -22,12 +22,22 @@ const styles = StyleSheet.create({
 		height: circleSize,
 		borderRadius: circleSize / 2,
 	},
+	notificationDot: {
+		position: "absolute",
+		top: 10,
+		right: 18,
+		width: 10,
+		height: 10,
+		backgroundColor: "red",
+		borderRadius: 5,
+	},
 });
 
-const BottomTabBarIcon: React.FC<{ focused: boolean; icon: React.ReactNode }> = ({
-	focused,
-	icon,
-}) => {
+const BottomTabBarIcon: React.FC<{
+	focused: boolean;
+	icon: React.ReactNode;
+	hasNotification: boolean;
+}> = ({ focused, icon, hasNotification }) => {
 	const offset = useSharedValue(0);
 
 	const animationConfig = {
@@ -68,6 +78,7 @@ const BottomTabBarIcon: React.FC<{ focused: boolean; icon: React.ReactNode }> = 
 			>
 				{icon}
 			</View>
+			{hasNotification && <View style={styles.notificationDot} />}
 		</Animated.View>
 	);
 };

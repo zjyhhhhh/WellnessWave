@@ -11,6 +11,7 @@ import { RootStackParamList } from "../../types";
 import AppTextInput from "../components/AppTextInput";
 import PasswordInput from "../components/PasswordInput";
 import { emailVerifier, passwordVerifier } from "../utils/formatVerifier";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 
@@ -19,10 +20,32 @@ const LoginScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 	const [password, setPassword] = useState<string>("");
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-	const loginHandler = () => {
+	const loginHandler = async () => {
 		if (emailVerifier(email) && passwordVerifier(password)) {
-			console.log("email: ", email);
-			console.log("password: ", password);
+			const response = await fetch(
+				`${process.env.EXPO_PUBLIC_API_URL}:${process.env.EXPO_PUBLIC_PORT}/users/login`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						email,
+						password,
+					}),
+				}
+			);
+			console.log(response);
+			if (response.ok) {
+				const data = await response.json();
+
+				AsyncStorage.setItem("userToken", data.access_token);
+				AsyncStorage.setItem("tokenType", data.token_type);
+
+				navigate("Home");
+			} else {
+				console.log("error");
+			}
 		}
 	};
 
