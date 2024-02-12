@@ -69,20 +69,43 @@ class PostContentModel(BaseModel):
     )
 
 
+class UserInformationModel(BaseModel):
+    """
+    Container for a single user's information.
+    """
+    username: PyObjectId = Field
+    nickname: str = Field
+    avatar: str = Field
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_schema_extra={
+            "example": {
+                "nickname": "Yahh",
+                "avatar": "example-user/avatar.jpg",
+            }
+        }
+    )
+
+
 class CommentModel(BaseModel):
     """
     Container for a single comment.
     """
     contentText: str = Field(...)
     auther: PyObjectId = Field(...)
+    autherInfo: UserInformationModel = Field(...)
     postDate: datetime = Field(default_factory=datetime.now)
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
         json_schema_extra={
             "example": {
-                "ContentText": "I'm happy today!",
-                "PosterID": "5f0f6e3e8e3b3e3e3e3e3e3e"
+                "contentText": "I'm happy today!",
+                "auther": "example-user",
+                "autherNickname": "Yahh",
+                "autherAvatar": "example-user/avatar.jpg",
+                "postDate": "2020-07-17T00:00:00"
             }
         },
     )
@@ -97,7 +120,7 @@ class PostModel(BaseModel):
 
     def upload_imgageList_to_s3(self):
         for i, image in enumerate(self.postContent.contextImage):
-            image_s3_path = f"post_images/{self.auther}/{self.postDate}/image_{i}.jpg"
+            image_s3_path = f"{self.auther}/post_images/{self.postDate}/image_{i}.jpg"
             s3_client.upload_fileobj(
                 image,
                 S3_BUCKET_NAME,
@@ -114,6 +137,7 @@ class PostModel(BaseModel):
 
     postContent: PostContentModel = Field(...)
     author: PyObjectId = Field(...)
+    authorInfo: UserInformationModel = Field(...)
     postDate: datetime = Field(default_factory=datetime.now)
     commentList: List[CommentModel] = Field(default=[])
     likeCount: int = Field(default=0)
@@ -123,26 +147,46 @@ class PostModel(BaseModel):
         arbitrary_types_allowed=True,
         json_schema_extra={
             "example": {
-                "PostContent": {
-                    "ContextText": "I'm happy today!",
-                    "ContextImage": ["post_images/example-user/2020-07-17T00:00:00/image1.jpg", "post_images/example-user/2020-07-17T00:00:00/image2.jpg"]
+                "postContent": {
+                    "contentText": "I'm happy today!",
+                    "contextImage": ["example-user/post_images/2020-07-17T00:00:00/image1.jpg", "example-user/post_images/2020-07-17T00:00:00/image2.jpg"]
                 },
-                "PosterID": "example-user",
-                "CommentList": [
+                "auther": "example-user",
+                "autherNickname": "Yahh",
+                "autherAvatar": "example-user/avatar.jpg",
+                "commentList": [
                     {
-                        "ContentText": "I'm happy today!",
-                        "PosterID": "example-user"
+                        "contentText": "I'm happy today!",
+                        "auther": "example-user",
+                        "autherNickname": "Yahh",
+                        "autherAvatar": "example-user/avatar.jpg",
                     }
                 ],
-                "LikeCount": 0,
-                "DislikeCount": 0,
-                "PostDate": "2020-07-17T00:00:00"
+                "likeCount": 0,
+                "dislikeCount": 0,
+                "postDate": "2020-07-17T00:00:00"
             }
         },
     )
 
-# PostModel
-    # PostContentModel PosterID CommentList LikeList DislikeList PostDate
-
 # UserProfileModel
     # UserPostList UserLikeList UserFollowList UserFollowerList Introduction Avatar Sex Age Nickname
+
+
+class UserProfileModel(BaseModel):
+    """
+    Container for a single user's profile.
+    """
+    username: PyObjectId = Field
+    userInfo: UserInformationModel = Field
+    introduction: str = Field(default=None)
+    sex: str = Field(default=None)
+    age: int = Field(default=None)
+    postList: List[PostModel] = Field(default=[])
+    likeList: List[PostModel] = Field(default=[])
+    followingList: List[UserInformationModel] = Field(default=[])
+    followerList: List[UserInformationModel] = Field(default=[])
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+    )

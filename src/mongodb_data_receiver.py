@@ -40,17 +40,6 @@ def serialize_document(document):
     return document
 
 
-# async def get_posts(load_more: bool, last_post_date: datetime = None, limit: int = 10):
-#     query = {}
-#     if load_more and last_post_date:
-#         print(last_post_date)
-#         query = {"postDate": {"$lt": last_post_date}}
-#     cursor = postCollections.find(query).sort("postDate", -1).limit(limit)
-#     posts = await cursor.to_list(length=limit)
-#     for post in posts:
-#         post["_id"] = str(post["_id"])
-#     return posts
-
 app = FastAPI()
 client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGODB_URL"])
 
@@ -75,7 +64,13 @@ async def auth_middleware(request: Request, call_next):
         try:
             payload = jwt.decode(
                 token, os.environ["SECRET_KEY"], algorithms=[os.environ["ALGORITHM"]])
-            request.state.username = payload["sub"]
+            # request.state.username = payload["sub"]
+            username = payload["sub"]
+            user_dict = await userCollections.find_one({"_id": username})
+            if not user_dict:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+            request.state.username = username
         except jwt.PyJWTError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
@@ -124,10 +119,6 @@ async def login(email: EmailStr = Body(...), password: str = Body(...)):
 @app.post("/send_posts/", status_code=status.HTTP_201_CREATED)
 async def create_post(request: Request, postContent: PostContentModel = Body(...)):
     username = getattr(request.state, 'username', None)
-    user_dict = await userCollections.find_one({"_id": username})
-    if not user_dict:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     post = PostModel(postContent=postContent, author=username)
     try:
         created_post = await postCollections.insert_one(post.model_dump(by_alias=True))
@@ -152,9 +143,156 @@ async def get_posts(last_post_date: datetime = None, limit: int = 10):
     posts = await cursor.to_list(length=limit)
     for post in posts:
         post["_id"] = str(post["_id"])
+
+    del posts["comments"]
+
     return {
         "posts": posts
     }
-# get posts by username
-# get followed posts by username
-# get liked posts by username
+
+# get a single post
+
+
+@app.get("/get_post/{postId}", response_model_by_alias=True)
+async def get_post(postId: str):
+    post = await postCollections.find_one({"_id": ObjectId(postId)})
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+    post["_id"] = str(post["_id"])
+    return post
+
+# comment
+
+
+@app.post("/post_comments/{postId}",  status_code=status.HTTP_201_CREATED)
+async def post_comment(request: Request, postId: str, comment: str = Body(...)):
+    username = getattr(request.state, 'username', None)
+    post = await postCollections.find_one({"_id": ObjectId(postId)})
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+    comment = {
+        "author": username,
+        "comment": comment,
+        "commentDate": datetime.now()
+    }
+    await postCollections.update_one(
+        {"_id": ObjectId(postId)}, {"$push": {"comments": comment}})
+    return {"message": "Comment posted successfully."}
+
+
+@app.get("/get_comments/{postId}", response_model_by_alias=True)
+async def get_comments(postId: str):
+    post = await postCollections.find_one({"_id": ObjectId(postId)})
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+    comments = post.get("comments", [])
+    return {"comments": comments}
+
+# like
+
+
+@app.post("/like/{postId}", status_code=status.HTTP_201_CREATED)
+async def like_post(request: Request, postId: str):
+    username = getattr(request.state, 'username', None)
+    post = await postCollections.find_one({"_id": ObjectId(postId)})
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+    await postCollections.update_one({"_id": ObjectId(postId)}, {"$inc": {"likeCount": 1}})
+    return {"message": "Post liked successfully."}
+
+
+@app.post("/unlike/{postId}", status_code=status.HTTP_201_CREATED)
+async def unlike_post(request: Request, postId: str):
+    username = getattr(request.state, 'username', None)
+    post = await postCollections.find_one({"_id": ObjectId(postId)})
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+    await postCollections.update_one({"_id": ObjectId(postId)}, {"$inc": {"likeCount": -1}})
+    return {"message": "Post unliked successfully."}
+
+# dislike
+
+
+@app.post("/dislike/{postId}", status_code=status.HTTP_201_CREATED)
+async def dislike_post(request: Request, postId: str):
+    username = getattr(request.state, 'username', None)
+    post = await postCollections.find_one({"_id": ObjectId(postId)})
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+    await postCollections.update_one({"_id": ObjectId(postId)}, {"$inc": {"dislikeCount": 1}})
+    return {"message": "Post disliked successfully."}
+
+
+@app.post("/undislike/{postId}", status_code=status.HTTP_201_CREATED)
+async def undislike_post(request: Request, postId: str):
+    username = getattr(request.state, 'username', None)
+    post = await postCollections.find_one({"_id": ObjectId(postId)})
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+    await postCollections.update_one({"_id": ObjectId(postId)}, {"$inc": {"dislikeCount": -1}})
+    return {"message": "Post undisliked successfully."}
+
+# follow
+
+
+@app.post("/follow/{userId}", status_code=status.HTTP_201_CREATED)
+async def follow(request: Request, userId: str):
+    follower = getattr(request.state, 'username', None)
+    user = await userCollections.find_one({"_id": userId})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    await userCollections.update_one({"_id": userId}, {"$push": {"followerList": follower}})
+    await userCollections.update_one({"_id": follower}, {"$push": {"followingList": userId}})
+    return {"message": "User followed successfully."}
+
+# unfollow
+
+
+@app.post("/unfollow/{userId}", status_code=status.HTTP_201_CREATED)
+async def unfollow(request: Request, userId: str):
+    follower = getattr(request.state, 'username', None)
+    user = await userCollections.find_one({"_id": userId})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    await userCollections.update_one({"_id": userId}, {"$pull": {"followerList": follower}})
+    await userCollections.update_one({"_id": follower}, {"$pull": {"followingList": userId}})
+    return {"message": "User unfollowed successfully."}
+
+# get focus posts
+
+
+@app.get("/get_focused_posts/", response_model_by_alias=True)
+async def get_focused_posts(request: Request):
+    username = getattr(request.state, 'username', None)
+    user = await userCollections.find_one({"_id": username})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    followingList = user.get("followingList", [])
+    posts = await postCollections.find({"author": {"$in": followingList}}).sort("postDate", -1)
+    for post in posts:
+        post["_id"] = str(post["_id"])
+    return {
+        "posts": posts
+    }
+
+# get user profile
+
+
+@app.get("/get_user_profile/{userId}", response_model_by_alias=True)
+async def get_user_profile(userId: str):
+    user = await userCollections.find_one({"_id": userId})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    user["_id"] = str(user["_id"])
+    return user
