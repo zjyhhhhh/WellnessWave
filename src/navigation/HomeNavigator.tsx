@@ -72,6 +72,14 @@ const HomeNavigator: React.FC<Props> = ({ navigation: { navigate } }) => {
 					),
 					tabBarTestID: "record-tab",
 				}}
+				listeners={({ navigation, route }) => ({
+					tabPress: (e) => {
+						e.preventDefault();
+						navigation.navigate("Record", {
+							screen: "History",
+						});
+					},
+				})}
 			/>
 			<Tab.Screen
 				name="Profile"
