@@ -1,6 +1,6 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MomentNavigator from "./MomentNavigator";
-import RecordScreen from "../screens/RecordScreen";
+import RecordScreen from "../screens/Record/HistoryScreen";
 import { Ionicons } from "@expo/vector-icons";
 import { height } from "../constants/Layout";
 import Colors from "../constants/Colors";
@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import ProfileNavigator from "./ProfileNavigator";
 import { RootStackParamList } from "../../types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import RecordNavigator from "./RecordNavigator";
 const Tab = createBottomTabNavigator();
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
@@ -54,7 +55,7 @@ const HomeNavigator: React.FC<Props> = ({ navigation: { navigate } }) => {
 			/>
 			<Tab.Screen
 				name="Record"
-				component={RecordScreen}
+				component={RecordNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<BottomTabBarIcon

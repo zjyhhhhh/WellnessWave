@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import renderer from "react-test-renderer";
-import RecordScreen from "../../src/screens/RecordScreen";
+import RecordScreen from "../../src/screens/Record/HistoryScreen";
 import { render } from "@testing-library/react-native";
 
 describe("Record Screen", () => {

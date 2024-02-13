@@ -16,3 +16,8 @@ export type ProfileStackParamList = {
 	Setting: undefined;
 	Edit: undefined;
 };
+
+export type RecordStackParamList = {
+	Diet: undefined;
+	History: undefined;
+};
