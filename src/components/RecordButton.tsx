@@ -12,7 +12,14 @@ interface RecordButtonProps {
 	pressHandler?: () => void;
 }
 
+const icons = {
+	Diet: Dish,
+	Sports: Dumbbell,
+	Health: HeartBeat,
+};
+
 const RecordButton = ({ type, pressHandler }: RecordButtonProps) => {
+	const IconComponent = icons[type];
 	const styles = StyleSheet.create({
 		recordButtonContainer: {
 			flexDirection: "column",
@@ -41,9 +48,7 @@ const RecordButton = ({ type, pressHandler }: RecordButtonProps) => {
 		<>
 			<TouchableOpacity style={styles.recordButtonContainer} onPress={pressHandler}>
 				<View style={styles.recordButtonIcon}>
-					{type === "Diet" && <Dish />}
-					{type === "Sports" && <Dumbbell />}
-					{type === "Health" && <HeartBeat />}
+					<IconComponent />
 				</View>
 				<Text style={styles.recordButtonText}>{type}</Text>
 			</TouchableOpacity>
