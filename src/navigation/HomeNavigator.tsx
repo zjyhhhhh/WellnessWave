@@ -10,12 +10,19 @@ import ProfileNavigator from "./ProfileNavigator";
 import { RootStackParamList } from "../../types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import RecordNavigator from "./RecordNavigator";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 const Tab = createBottomTabNavigator();
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
 const HomeNavigator: React.FC<Props> = ({ navigation: { navigate } }) => {
 	const [hasNotification, setHasNotification] = useState<boolean>(false);
+	const getTabBarVisibility = (route: any) => {
+		const routeName = getFocusedRouteNameFromRoute(route);
+		const hideOnScreens = ["DietRecord"]; // put here name of screen where you want to hide tabBar
+		if (routeName === undefined) return true;
+		return hideOnScreens.indexOf(routeName) <= -1;
+	};
 
 	return (
 		<Tab.Navigator
@@ -56,7 +63,24 @@ const HomeNavigator: React.FC<Props> = ({ navigation: { navigate } }) => {
 			<Tab.Screen
 				name="Record"
 				component={RecordNavigator}
-				options={{
+				// options={{
+				// 	tabBarIcon: ({ focused }) => (
+				// 		<BottomTabBarIcon
+				// 			focused={focused}
+				// 			icon={
+				// 				<Ionicons
+				// 					name="trophy-outline"
+				// 					size={height * 0.04}
+				// 					color={focused ? Colors.primary : Colors.text}
+				// 				/>
+				// 			}
+				// 			hasNotification={false}
+				// 		/>
+				// 	),
+				// 	tabBarTestID: "record-tab",
+				// }}
+				options={({ route }) => ({
+					tabBarVisible: getTabBarVisibility(route),
 					tabBarIcon: ({ focused }) => (
 						<BottomTabBarIcon
 							focused={focused}
@@ -71,7 +95,7 @@ const HomeNavigator: React.FC<Props> = ({ navigation: { navigate } }) => {
 						/>
 					),
 					tabBarTestID: "record-tab",
-				}}
+				})}
 				listeners={({ navigation, route }) => ({
 					tabPress: (e) => {
 						e.preventDefault();

@@ -19,5 +19,6 @@ export type ProfileStackParamList = {
 
 export type RecordStackParamList = {
 	Diet: undefined;
+	DietRecord: { date: string; type: string };
 	History: undefined;
 };
