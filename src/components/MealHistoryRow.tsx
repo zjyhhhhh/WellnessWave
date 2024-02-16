@@ -7,7 +7,6 @@ import { foodIcons } from "../constants/FoodIcons";
 
 interface MealHistoryRowProps {
 	iconName: string;
-	text: string;
 }
 
 const styles = StyleSheet.create({
@@ -35,14 +34,14 @@ const styles = StyleSheet.create({
 
 const iconSize = width * 0.065;
 
-const MealHistoryRow = ({ iconName, text }: MealHistoryRowProps) => {
+const MealHistoryRow = ({ iconName }: MealHistoryRowProps) => {
 	const IconComponent = foodIcons[iconName];
 	return (
 		<View style={styles.dailyHistoryDetailClassContentRow}>
 			<View style={styles.dailyHistoryDetailClassContentIcon}>
 				{IconComponent && <IconComponent height={iconSize} width={iconSize} />}
 			</View>
-			<Text style={styles.dailyHistoryDetailClassContentText}>{text}</Text>
+			<Text style={styles.dailyHistoryDetailClassContentText}>{iconName}</Text>
 		</View>
 	);
 };

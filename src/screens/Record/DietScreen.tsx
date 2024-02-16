@@ -23,21 +23,17 @@ const data = {
 	Breakfast: [
 		{
 			iconName: "Milk",
-			text: "Milk",
 		},
 		{
 			iconName: "Sandwich",
-			text: "Sandwich",
 		},
 	],
 	Lunch: [
 		{
 			iconName: "Pizza",
-			text: "Pizza",
 		},
 		{
 			iconName: "CocaCola",
-			text: "CocaCola",
 		},
 	],
 	Dinner: [],

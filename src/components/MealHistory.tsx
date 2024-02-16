@@ -7,7 +7,7 @@ import MealHistoryRow from "./MealHistoryRow";
 
 interface MealHistoryProps {
 	type: "Breakfast" | "Lunch" | "Dinner" | "Snack";
-	data: { iconName: string; text: string }[];
+	data: { iconName: string }[];
 }
 
 const styles = StyleSheet.create({
@@ -44,7 +44,7 @@ const MealHistory = ({ type, data }: MealHistoryProps) => {
 			<Text style={styles.dailyHistoryTitle}>{type}</Text>
 			<View style={styles.dailyHistoryContentContainer}>
 				{data.map((item, index) => (
-					<MealHistoryRow key={index} iconName={item.iconName} text={item.text} />
+					<MealHistoryRow key={index} iconName={item.iconName} />
 				))}
 			</View>
 		</View>

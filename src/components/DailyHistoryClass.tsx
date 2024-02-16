@@ -62,10 +62,11 @@ interface RowProps {
 
 const Row = ({ iconName, text }: RowProps) => {
 	const IconComponent = foodIcons[iconName];
+	const iconSize = width * 0.058;
 
 	return (
 		<View style={styles.dailyHistoryDetailClassContentRow}>
-			{IconComponent && <IconComponent height={16} width={16} />}
+			{IconComponent && <IconComponent height={iconSize} width={iconSize} />}
 			<Text style={styles.dailyHistoryDetailClassContentText}>{text}</Text>
 		</View>
 	);
