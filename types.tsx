@@ -21,11 +21,5 @@ export type RecordStackParamList = {
 	Diet: undefined;
 	DietRecord: { date: string; type: string };
 	History: undefined;
-};
-
-export type ProfileStackParamList = {
-	Notification: undefined;
-	Main: undefined;
-	Setting: undefined;
-	Edit: undefined;
+	Sports: undefined;
 };

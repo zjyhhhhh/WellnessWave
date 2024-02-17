@@ -28,7 +28,12 @@ const HistoryScreen = ({ navigation: { navigate } }: Props) => {
 							navigate("Diet");
 						}}
 					/>
-					<RecordButton type="Sports" />
+					<RecordButton
+						type="Sports"
+						pressHandler={() => {
+							navigate("Sports");
+						}}
+					/>
 					<RecordButton type="Health" />
 				</View>
 				<View>
