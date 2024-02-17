@@ -4,7 +4,7 @@ const dark = "#626262";
 const orange = "#fea415";
 const gray = "#ECECEC";
 const lightBlue = "#f1f4ff";
-const lightOrange = "#F8D0A0"
+const lightOrange = "#FBE7CE"
 const darkGray = "#585757";
 
 export default {
