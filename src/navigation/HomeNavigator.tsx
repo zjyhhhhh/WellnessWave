@@ -1,6 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MomentNavigator from "./MomentNavigator";
-import RecordScreen from "../screens/Record/HistoryScreen";
 import { Ionicons } from "@expo/vector-icons";
 import { height } from "../constants/Layout";
 import Colors from "../constants/Colors";
@@ -63,22 +62,6 @@ const HomeNavigator: React.FC<Props> = ({ navigation: { navigate } }) => {
 			<Tab.Screen
 				name="Record"
 				component={RecordNavigator}
-				// options={{
-				// 	tabBarIcon: ({ focused }) => (
-				// 		<BottomTabBarIcon
-				// 			focused={focused}
-				// 			icon={
-				// 				<Ionicons
-				// 					name="trophy-outline"
-				// 					size={height * 0.04}
-				// 					color={focused ? Colors.primary : Colors.text}
-				// 				/>
-				// 			}
-				// 			hasNotification={false}
-				// 		/>
-				// 	),
-				// 	tabBarTestID: "record-tab",
-				// }}
 				options={({ route }) => ({
 					tabBarVisible: getTabBarVisibility(route),
 					tabBarIcon: ({ focused }) => (
