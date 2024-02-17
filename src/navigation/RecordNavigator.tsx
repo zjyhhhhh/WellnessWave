@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { RecordStackParamList } from "../../types";
-import HistoryScreen from "../screens/Record/HistoryScreen";
+import HistoryScreen from "../screens/Record/DietHistoryScreen";
 import DietScreen from "../screens/Record/DietScreen";
 import DietRecordScreen from "../screens/Record/DietRecordScreen";
 
