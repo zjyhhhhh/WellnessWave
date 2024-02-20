@@ -1,6 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MomentNavigator from "./MomentNavigator";
-import RecordScreen from "../screens/RecordScreen";
 import { Ionicons } from "@expo/vector-icons";
 import { height } from "../constants/Layout";
 import Colors from "../constants/Colors";
@@ -9,12 +8,20 @@ import { useEffect, useState } from "react";
 import ProfileNavigator from "./ProfileNavigator";
 import { RootStackParamList } from "../../types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import RecordNavigator from "./RecordNavigator";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 const Tab = createBottomTabNavigator();
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
 const HomeNavigator: React.FC<Props> = ({ navigation: { navigate } }) => {
 	const [hasNotification, setHasNotification] = useState<boolean>(false);
+	const getTabBarVisibility = (route: any) => {
+		const routeName = getFocusedRouteNameFromRoute(route);
+		const hideOnScreens = ["DietRecord"]; // put here name of screen where you want to hide tabBar
+		if (routeName === undefined) return true;
+		return hideOnScreens.indexOf(routeName) <= -1;
+	};
 
 	return (
 		<Tab.Navigator
@@ -54,8 +61,9 @@ const HomeNavigator: React.FC<Props> = ({ navigation: { navigate } }) => {
 			/>
 			<Tab.Screen
 				name="Record"
-				component={RecordScreen}
-				options={{
+				component={RecordNavigator}
+				options={({ route }) => ({
+					tabBarVisible: getTabBarVisibility(route),
 					tabBarIcon: ({ focused }) => (
 						<BottomTabBarIcon
 							focused={focused}
@@ -70,7 +78,15 @@ const HomeNavigator: React.FC<Props> = ({ navigation: { navigate } }) => {
 						/>
 					),
 					tabBarTestID: "record-tab",
-				}}
+				})}
+				listeners={({ navigation, route }) => ({
+					tabPress: (e) => {
+						e.preventDefault();
+						navigation.navigate("Record", {
+							screen: "History",
+						});
+					},
+				})}
 			/>
 			<Tab.Screen
 				name="Profile"

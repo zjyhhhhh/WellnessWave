@@ -16,3 +16,10 @@ export type ProfileStackParamList = {
 	Setting: undefined;
 	Edit: undefined;
 };
+
+export type RecordStackParamList = {
+	Diet: undefined;
+	DietRecord: { date: string; type: string };
+	History: undefined;
+	Sports: undefined;
+};
