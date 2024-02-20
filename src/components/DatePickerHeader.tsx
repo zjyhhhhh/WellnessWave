@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View, SafeAreaView, TouchableOpacity, StyleSheet } from "react-native";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { AntDesign } from "@expo/vector-icons";
-import { width } from "../constants/Layout";
+import { height, width } from "../constants/Layout";
 import Colors from "../constants/Colors";
 
 interface DatePickerHeaderProps {
@@ -30,6 +30,7 @@ const DatePickerHeader = ({ value, onDateChange }: DatePickerHeaderProps) => {
 					alignItems: "center",
 					borderBottomWidth: 2,
 					borderBottomColor: Colors.gray,
+					height: 0.06 * height,
 				}}
 			>
 				<DateTimePicker value={date} mode="date" onChange={onChange} display="default" />

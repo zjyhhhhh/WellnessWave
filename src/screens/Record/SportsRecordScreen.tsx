@@ -1,39 +1,44 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RecordStackParamList } from "../../../types";
-import {
-	View,
-	Text,
-	SafeAreaView,
-	TextInput,
-	StyleSheet,
-	ScrollView,
-	TouchableOpacity,
-	TouchableWithoutFeedback,
-} from "react-native";
+import { View, Text, SafeAreaView, TextInput, ScrollView, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
 import { height, width } from "../../constants/Layout";
-import { format, parseISO } from "date-fns";
 import Font from "../../constants/Font";
 import Colors from "../../constants/Colors";
 import { Feather } from "@expo/vector-icons";
 import FoodCategoryPicker from "../../components/FoodCategoryPicker";
-import FoodSelectRow from "../../components/FoodSelectRow";
-import { FoodCategories, foodCategories } from "../../constants/FoodIcons";
-import DishOrange from "../../assets/icons/DishOrange.svg";
+import { foodCategories } from "../../constants/FoodIcons";
+import DumbbellOrange from "../../assets/icons/DumbbellOrange.svg";
 import FontSize from "../../constants/FontSize";
-import FoodDeleteRow from "../../components/FoodDeleteRow";
 import { recordStyles as styles } from "./style";
+import DatePickerHeader from "../../components/DatePickerHeader";
+import { SportsCategories, sportsCategories } from "../../constants/SportsIcons";
+import SportsSelectRow from "../../components/SportsSelectRow";
+import SportsDurationModal from "../../components/SportsDurationModal";
+import SportsDeleteRow from "../../components/SportsDeleteRow";
 
-type Props = NativeStackScreenProps<RecordStackParamList, "DietRecord">;
+type Props = NativeStackScreenProps<RecordStackParamList, "SportsRecord">;
 
-const categories = ["Common", "Fruits", "Drinks"];
+const categories = ["Common", "Aerobics", "Ball games", "Strength"];
 
-const DietRecordScreen = ({ navigation, route }: Props) => {
-	const { date, type } = route.params;
+interface SportsRecord {
+	name: string;
+	duration: number;
+}
+
+const SportsRecordScreen = ({ navigation, route }: Props) => {
 	const [category, setCategory] = useState("Common");
-	const [selectedItems, setSelectedItems] = useState<string[]>([]);
+	const [selectedItems, setSelectedItems] = useState<SportsRecord[]>([]);
 	const [menu, setMenu] = useState(foodCategories["common"]);
 	const [cartShown, setCartShown] = useState(false);
+	const [modalVisible, setModalVisible] = useState(false);
+	const [currentItem, setCurrentItem] = useState("");
+
+	const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
+	useEffect(() => {
+		console.log(selectedDate);
+	}, [selectedDate]);
 
 	const sendHandler = () => {
 		navigation.navigate("Diet");
@@ -60,16 +65,16 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 	}, [navigation]);
 
 	useEffect(() => {
-		setMenu(foodCategories[category.toLowerCase() as keyof FoodCategories]);
+		setMenu(sportsCategories[category.replace(/\s+/g, "").toLowerCase() as keyof SportsCategories]);
 	}, [category]);
 
 	return (
 		<SafeAreaView style={{ flex: 1, marginBottom: -34 }}>
-			<View style={styles.header}>
-				<Text style={styles.headerText}>
-					{format(parseISO(date), "MMM d, yyyy")} - {type}
-				</Text>
-			</View>
+			<DatePickerHeader
+				onDateChange={(date: Date) => {
+					setSelectedDate(date);
+				}}
+			/>
 			<View>
 				<View style={styles.searchBar}>
 					<Feather name="search" size={18} color="black" />
@@ -97,17 +102,18 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 					<View style={styles.itemContainer}>
 						<Text style={styles.itemCategoryTitle}>{category}</Text>
 						<View style={{ width: "100%" }}>
-							{menu.map((food) => (
-								<FoodSelectRow
-									key={food}
-									iconName={food}
-									selected={selectedItems.includes(food) ? true : false}
+							{menu.map((item) => (
+								<SportsSelectRow
+									key={item}
+									iconName={item}
+									selected={selectedItems.some((i) => i.name === item) ? true : false}
 									addHandler={() => {
-										if (selectedItems.includes(food)) {
-											const newSelectedItems = selectedItems.filter((item) => item !== food);
+										if (selectedItems.some((i) => i.name === item)) {
+											const newSelectedItems = selectedItems.filter((i) => i.name !== item);
 											setSelectedItems(newSelectedItems);
 										} else {
-											setSelectedItems([...selectedItems, food]);
+											setModalVisible(true);
+											setCurrentItem(item);
 										}
 									}}
 								/>
@@ -115,6 +121,15 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 						</View>
 					</View>
 				</ScrollView>
+				<SportsDurationModal
+					modalVisible={modalVisible}
+					setCloseModal={() => setModalVisible(false)}
+					currentItem={currentItem}
+					addHandler={(duration) => {
+						setSelectedItems([...selectedItems, { name: currentItem, duration }]);
+						setModalVisible(false);
+					}}
+				/>
 			</View>
 			{cartShown && (
 				<View
@@ -139,12 +154,12 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 					</Text>
 					<ScrollView>
 						<View style={{ width: "100%" }}>
-							{selectedItems.map((food) => (
-								<FoodDeleteRow
-									iconName={food}
-									key={food}
+							{selectedItems.map((item) => (
+								<SportsDeleteRow
+									iconName={item.name}
+									key={item.name}
 									deleteHandler={() => {
-										const newSelectedItems = selectedItems.filter((item) => item !== food);
+										const newSelectedItems = selectedItems.filter((i) => i.name !== item.name);
 										setSelectedItems(newSelectedItems);
 									}}
 								/>
@@ -157,7 +172,7 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 				<View style={styles.cart}>
 					<View>
 						<TouchableOpacity onPress={() => setCartShown(!cartShown)}>
-							<DishOrange height={0.15 * width} width={0.15 * width} />
+							<DumbbellOrange height={0.15 * width} width={0.15 * width} />
 						</TouchableOpacity>
 						{selectedItems.length > 0 && (
 							<View style={styles.cartCount}>
@@ -165,7 +180,7 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 							</View>
 						)}
 					</View>
-					<Text style={styles.cartTitle}>{type}</Text>
+					<Text style={styles.cartTitle}>Sports</Text>
 				</View>
 				<TouchableOpacity style={styles.cartButton} onPress={sendHandler}>
 					<Text style={styles.cartButtonText}>OK</Text>
@@ -175,4 +190,4 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 	);
 };
 
-export default DietRecordScreen;
+export default SportsRecordScreen;

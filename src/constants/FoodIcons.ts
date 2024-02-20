@@ -79,7 +79,7 @@ export const foodIcons: IconMapping = {
 export type FoodCategories = {
   common: string[];
   fruits: string[];
-  drink: string[];
+  drinks: string[];
 };
 
 export const foodCategories: FoodCategories = {
@@ -125,7 +125,7 @@ export const foodCategories: FoodCategories = {
     "Pineapple",
     "Strawberry",
   ],
-  drink: [
+  drinks: [
     "CocaCola",
     "Coffee-1",
     "Coffee",
