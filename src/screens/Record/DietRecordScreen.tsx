@@ -6,7 +6,7 @@ import { height, width } from "../../constants/Layout";
 import { format, parseISO } from "date-fns";
 import Colors from "../../constants/Colors";
 import { Feather } from "@expo/vector-icons";
-import FoodCategoryPicker from "../../components/FoodCategoryPicker";
+import SidebarCategoryPicker from "../../components/SidebarCategoryPicker";
 import FoodSelectRow from "../../components/FoodSelectRow";
 import { FoodCategories, foodCategories } from "../../constants/FoodIcons";
 import DishOrange from "../../assets/icons/DishOrange.svg";
@@ -69,7 +69,7 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 				<View style={styles.sidebarContainer}>
 					<View style={styles.itemCategoryPickerContainer}>
 						{categories.map((cat) => (
-							<FoodCategoryPicker
+							<SidebarCategoryPicker
 								category={cat}
 								currentCategory={category}
 								setCategory={setCategory}

@@ -24,7 +24,7 @@ const styles = (activate: boolean) =>
 		},
 	});
 
-const FoodCategoryPicker = ({
+const SidebarCategoryPicker = ({
 	category,
 	currentCategory,
 	setCategory,
@@ -45,4 +45,4 @@ const FoodCategoryPicker = ({
 	);
 };
 
-export default FoodCategoryPicker;
+export default SidebarCategoryPicker;

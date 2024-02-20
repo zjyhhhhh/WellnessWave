@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { height, width } from "../../constants/Layout";
 import Colors from "../../constants/Colors";
 import { Feather } from "@expo/vector-icons";
-import FoodCategoryPicker from "../../components/FoodCategoryPicker";
+import SidebarCategoryPicker from "../../components/SidebarCategoryPicker";
 import DumbbellOrange from "../../assets/icons/DumbbellOrange.svg";
 import { recordStyles as styles } from "./style";
 import DatePickerHeader from "../../components/DatePickerHeader";
@@ -82,7 +82,7 @@ const SportsRecordScreen = ({ navigation, route }: Props) => {
 				<View style={styles.sidebarContainer}>
 					<View style={styles.itemCategoryPickerContainer}>
 						{categories.map((cat) => (
-							<FoodCategoryPicker
+							<SidebarCategoryPicker
 								category={cat}
 								currentCategory={category}
 								setCategory={setCategory}
