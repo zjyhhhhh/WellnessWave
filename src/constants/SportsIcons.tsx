@@ -134,7 +134,7 @@ const IconComponent: React.FC<{ activity: string; iconSize: number }> = ({
 	iconSize,
 }) => {
 	const IconGenerator = sportsIcons[activity];
-	const icon = IconGenerator ? IconGenerator(iconSize) : null;
+	const icon = IconGenerator ? IconGenerator(iconSize * 0.8) : null;
 
 	return (
 		<View

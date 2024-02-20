@@ -126,7 +126,15 @@ const SportsRecordScreen = ({ navigation, route }: Props) => {
 					setCloseModal={() => setModalVisible(false)}
 					currentItem={currentItem}
 					addHandler={(duration) => {
-						setSelectedItems([...selectedItems, { name: currentItem, duration }]);
+						if (selectedItems.some((i) => i.name === currentItem)) {
+							const newSelectedItems = selectedItems.map((i) =>
+								i.name === currentItem ? { name: currentItem, duration } : i
+							);
+							setSelectedItems(newSelectedItems);
+						} else {
+							setSelectedItems([...selectedItems, { name: currentItem, duration }]);
+						}
+						// setSelectedItems([...selectedItems, { name: currentItem, duration }]);
 						setModalVisible(false);
 					}}
 				/>
@@ -158,6 +166,11 @@ const SportsRecordScreen = ({ navigation, route }: Props) => {
 								<SportsDeleteRow
 									iconName={item.name}
 									key={item.name}
+									duration={item.duration}
+									editHandler={() => {
+										setModalVisible(true);
+										setCurrentItem(item.name);
+									}}
 									deleteHandler={() => {
 										const newSelectedItems = selectedItems.filter((i) => i.name !== item.name);
 										setSelectedItems(newSelectedItems);
