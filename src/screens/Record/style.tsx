@@ -63,7 +63,20 @@ export const recordStyles = StyleSheet.create({
 		marginLeft: 0.04 * width,
 		marginBottom: 0.01 * height,
 	},
-	cartContainer: {
+	cart: {
+		height: 0.2 * height,
+		backgroundColor: Colors.background,
+		paddingVertical: 0.02 * height,
+		justifyContent: "flex-start",
+		alignContent: "flex-start",
+	},
+	cartTitle: {
+		fontSize: FontSize.medium,
+		fontFamily: Font["poppins-semiBold"],
+		color: Colors.darkText,
+		paddingHorizontal: 0.1 * width,
+	},
+	bottomContainer: {
 		height: 0.08 * height,
 		backgroundColor: Colors.background,
 		borderTopWidth: 2,
@@ -75,12 +88,12 @@ export const recordStyles = StyleSheet.create({
 		justifyContent: "space-between",
 		alignItems: "center",
 	},
-	cart: {
+	bottom: {
 		flexDirection: "row",
 		alignContent: "flex-start",
 		alignItems: "center",
 	},
-	cartCount: {
+	bottomCount: {
 		position: "absolute",
 		right: 0,
 		top: 0,
@@ -92,16 +105,16 @@ export const recordStyles = StyleSheet.create({
 		justifyContent: "center",
 		alignItems: "center",
 	},
-	cartCountText: {
+	bottomCountText: {
 		color: Colors.primary,
 		fontFamily: Font["poppins-semiBold"],
 	},
-	cartTitle: {
+	bottomTitle: {
 		fontSize: FontSize.large,
 		fontFamily: Font["poppins-semiBold"],
 		paddingLeft: 0.05 * width,
 	},
-	cartButton: {
+	bottomButton: {
 		width: "30%",
 		height: "70%",
 		backgroundColor: Colors.secondary,
@@ -109,7 +122,7 @@ export const recordStyles = StyleSheet.create({
 		justifyContent: "center",
 		borderRadius: 0.03 * width,
 	},
-	cartButtonText: {
+	bottomButtonText: {
 		fontSize: FontSize.large,
 		fontFamily: Font["poppins-semiBold"],
 	},

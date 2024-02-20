@@ -1,26 +1,15 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RecordStackParamList } from "../../../types";
-import {
-	View,
-	Text,
-	SafeAreaView,
-	TextInput,
-	StyleSheet,
-	ScrollView,
-	TouchableOpacity,
-	TouchableWithoutFeedback,
-} from "react-native";
+import { View, Text, SafeAreaView, TextInput, ScrollView, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
 import { height, width } from "../../constants/Layout";
 import { format, parseISO } from "date-fns";
-import Font from "../../constants/Font";
 import Colors from "../../constants/Colors";
 import { Feather } from "@expo/vector-icons";
 import FoodCategoryPicker from "../../components/FoodCategoryPicker";
 import FoodSelectRow from "../../components/FoodSelectRow";
 import { FoodCategories, foodCategories } from "../../constants/FoodIcons";
 import DishOrange from "../../assets/icons/DishOrange.svg";
-import FontSize from "../../constants/FontSize";
 import FoodDeleteRow from "../../components/FoodDeleteRow";
 import { recordStyles as styles } from "./style";
 
@@ -117,26 +106,8 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 				</ScrollView>
 			</View>
 			{cartShown && (
-				<View
-					style={{
-						height: 0.2 * height,
-						backgroundColor: Colors.background,
-
-						paddingVertical: 0.02 * height,
-						justifyContent: "flex-start",
-						alignContent: "flex-start",
-					}}
-				>
-					<Text
-						style={{
-							fontSize: FontSize.medium,
-							fontFamily: Font["poppins-semiBold"],
-							color: Colors.darkText,
-							paddingHorizontal: 0.1 * width,
-						}}
-					>
-						{selectedItems.length} records in all
-					</Text>
+				<View style={styles.cart}>
+					<Text style={styles.cartTitle}>{selectedItems.length} records in all</Text>
 					<ScrollView>
 						<View style={{ width: "100%" }}>
 							{selectedItems.map((food) => (
@@ -153,22 +124,22 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 					</ScrollView>
 				</View>
 			)}
-			<View style={styles.cartContainer}>
-				<View style={styles.cart}>
+			<View style={styles.bottomContainer}>
+				<View style={styles.bottom}>
 					<View>
 						<TouchableOpacity onPress={() => setCartShown(!cartShown)}>
 							<DishOrange height={0.15 * width} width={0.15 * width} />
 						</TouchableOpacity>
 						{selectedItems.length > 0 && (
-							<View style={styles.cartCount}>
-								<Text style={styles.cartCountText}>{selectedItems.length}</Text>
+							<View style={styles.bottomCount}>
+								<Text style={styles.bottomCountText}>{selectedItems.length}</Text>
 							</View>
 						)}
 					</View>
 					<Text style={styles.cartTitle}>{type}</Text>
 				</View>
-				<TouchableOpacity style={styles.cartButton} onPress={sendHandler}>
-					<Text style={styles.cartButtonText}>OK</Text>
+				<TouchableOpacity style={styles.bottomButton} onPress={sendHandler}>
+					<Text style={styles.bottomButtonText}>OK</Text>
 				</TouchableOpacity>
 			</View>
 		</SafeAreaView>

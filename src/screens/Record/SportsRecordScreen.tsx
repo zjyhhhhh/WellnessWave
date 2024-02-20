@@ -3,13 +3,10 @@ import { RecordStackParamList } from "../../../types";
 import { View, Text, SafeAreaView, TextInput, ScrollView, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
 import { height, width } from "../../constants/Layout";
-import Font from "../../constants/Font";
 import Colors from "../../constants/Colors";
 import { Feather } from "@expo/vector-icons";
 import FoodCategoryPicker from "../../components/FoodCategoryPicker";
-import { foodCategories } from "../../constants/FoodIcons";
 import DumbbellOrange from "../../assets/icons/DumbbellOrange.svg";
-import FontSize from "../../constants/FontSize";
 import { recordStyles as styles } from "./style";
 import DatePickerHeader from "../../components/DatePickerHeader";
 import { SportsCategories, sportsCategories } from "../../constants/SportsIcons";
@@ -29,7 +26,7 @@ interface SportsRecord {
 const SportsRecordScreen = ({ navigation, route }: Props) => {
 	const [category, setCategory] = useState("Common");
 	const [selectedItems, setSelectedItems] = useState<SportsRecord[]>([]);
-	const [menu, setMenu] = useState(foodCategories["common"]);
+	const [menu, setMenu] = useState(sportsCategories["common"]);
 	const [cartShown, setCartShown] = useState(false);
 	const [modalVisible, setModalVisible] = useState(false);
 	const [currentItem, setCurrentItem] = useState("");
@@ -134,32 +131,13 @@ const SportsRecordScreen = ({ navigation, route }: Props) => {
 						} else {
 							setSelectedItems([...selectedItems, { name: currentItem, duration }]);
 						}
-						// setSelectedItems([...selectedItems, { name: currentItem, duration }]);
 						setModalVisible(false);
 					}}
 				/>
 			</View>
 			{cartShown && (
-				<View
-					style={{
-						height: 0.2 * height,
-						backgroundColor: Colors.background,
-
-						paddingVertical: 0.02 * height,
-						justifyContent: "flex-start",
-						alignContent: "flex-start",
-					}}
-				>
-					<Text
-						style={{
-							fontSize: FontSize.medium,
-							fontFamily: Font["poppins-semiBold"],
-							color: Colors.darkText,
-							paddingHorizontal: 0.1 * width,
-						}}
-					>
-						{selectedItems.length} records in all
-					</Text>
+				<View style={styles.cart}>
+					<Text style={styles.cartTitle}>{selectedItems.length} records in all</Text>
 					<ScrollView>
 						<View style={{ width: "100%" }}>
 							{selectedItems.map((item) => (
@@ -181,22 +159,22 @@ const SportsRecordScreen = ({ navigation, route }: Props) => {
 					</ScrollView>
 				</View>
 			)}
-			<View style={styles.cartContainer}>
-				<View style={styles.cart}>
+			<View style={styles.bottomContainer}>
+				<View style={styles.bottom}>
 					<View>
 						<TouchableOpacity onPress={() => setCartShown(!cartShown)}>
 							<DumbbellOrange height={0.15 * width} width={0.15 * width} />
 						</TouchableOpacity>
 						{selectedItems.length > 0 && (
-							<View style={styles.cartCount}>
-								<Text style={styles.cartCountText}>{selectedItems.length}</Text>
+							<View style={styles.bottomCount}>
+								<Text style={styles.bottomCountText}>{selectedItems.length}</Text>
 							</View>
 						)}
 					</View>
-					<Text style={styles.cartTitle}>Sports</Text>
+					<Text style={styles.bottomTitle}>Sports</Text>
 				</View>
-				<TouchableOpacity style={styles.cartButton} onPress={sendHandler}>
-					<Text style={styles.cartButtonText}>OK</Text>
+				<TouchableOpacity style={styles.bottomButton} onPress={sendHandler}>
+					<Text style={styles.bottomButtonText}>OK</Text>
 				</TouchableOpacity>
 			</View>
 		</SafeAreaView>
