@@ -1,7 +1,7 @@
 import { View, Text, SafeAreaView, StyleSheet, Image, ScrollView } from "react-native";
 import { height, width } from "../../constants/Layout";
-import RecordButton from "../../components/RecordButton";
-import DailyHistoryRecord from "../../components/DailyHistory";
+import RecordButton from "../../components/Record/RecordButton";
+import DailyHistoryRecord from "../../components/Record/History/DailyHistory";
 import { RecordStackParamList } from "../../../types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 

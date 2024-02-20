@@ -5,14 +5,18 @@ import { useEffect, useState } from "react";
 import { height, width } from "../../constants/Layout";
 import Colors from "../../constants/Colors";
 import { Feather } from "@expo/vector-icons";
-import SidebarCategoryPicker from "../../components/SidebarCategoryPicker";
+import SidebarCategoryPicker from "../../components/Record/RecordCart/SidebarCategoryPicker";
 import DumbbellOrange from "../../assets/icons/DumbbellOrange.svg";
 import { recordStyles as styles } from "./style";
-import DatePickerHeader from "../../components/DatePickerHeader";
-import { SportsCategories, sportsCategories } from "../../constants/SportsIcons";
-import SportsSelectRow from "../../components/SportsSelectRow";
-import SportsDurationModal from "../../components/SportsDurationModal";
-import SportsDeleteRow from "../../components/SportsDeleteRow";
+import DatePickerHeader from "../../components/Record/DatePickerHeader";
+import SportsIconComponent, {
+	SportsCategories,
+	sportsCategories,
+} from "../../constants/SportsIcons";
+import SportsDurationModal from "../../components/Record/RecordCart/SportsDurationModal";
+import SelectRow from "../../components/Record/RecordCart/SelectRow";
+import DeleteRow from "../../components/Record/RecordCart/DeleteRow";
+import BottomContainer from "../../components/Record/RecordCart/BottomContainer";
 
 type Props = NativeStackScreenProps<RecordStackParamList, "SportsRecord">;
 
@@ -38,7 +42,7 @@ const SportsRecordScreen = ({ navigation, route }: Props) => {
 	}, [selectedDate]);
 
 	const sendHandler = () => {
-		navigation.navigate("Diet");
+		navigation.navigate("Sports");
 	};
 
 	useEffect(() => {
@@ -100,7 +104,7 @@ const SportsRecordScreen = ({ navigation, route }: Props) => {
 						<Text style={styles.itemCategoryTitle}>{category}</Text>
 						<View style={{ width: "100%" }}>
 							{menu.map((item) => (
-								<SportsSelectRow
+								<SelectRow
 									key={item}
 									iconName={item}
 									selected={selectedItems.some((i) => i.name === item) ? true : false}
@@ -113,6 +117,7 @@ const SportsRecordScreen = ({ navigation, route }: Props) => {
 											setCurrentItem(item);
 										}
 									}}
+									IconComponent={SportsIconComponent}
 								/>
 							))}
 						</View>
@@ -141,7 +146,7 @@ const SportsRecordScreen = ({ navigation, route }: Props) => {
 					<ScrollView>
 						<View style={{ width: "100%" }}>
 							{selectedItems.map((item) => (
-								<SportsDeleteRow
+								<DeleteRow
 									iconName={item.name}
 									key={item.name}
 									duration={item.duration}
@@ -153,30 +158,21 @@ const SportsRecordScreen = ({ navigation, route }: Props) => {
 										const newSelectedItems = selectedItems.filter((i) => i.name !== item.name);
 										setSelectedItems(newSelectedItems);
 									}}
+									IconComponent={SportsIconComponent}
 								/>
 							))}
 						</View>
 					</ScrollView>
 				</View>
 			)}
-			<View style={styles.bottomContainer}>
-				<View style={styles.bottom}>
-					<View>
-						<TouchableOpacity onPress={() => setCartShown(!cartShown)}>
-							<DumbbellOrange height={0.15 * width} width={0.15 * width} />
-						</TouchableOpacity>
-						{selectedItems.length > 0 && (
-							<View style={styles.bottomCount}>
-								<Text style={styles.bottomCountText}>{selectedItems.length}</Text>
-							</View>
-						)}
-					</View>
-					<Text style={styles.bottomTitle}>Sports</Text>
-				</View>
-				<TouchableOpacity style={styles.bottomButton} onPress={sendHandler}>
-					<Text style={styles.bottomButtonText}>OK</Text>
-				</TouchableOpacity>
-			</View>
+			<BottomContainer
+				iconComponent={<DumbbellOrange height={0.15 * width} width={0.15 * width} />}
+				title="Sports"
+				count={selectedItems.length}
+				cartController={() => setCartShown(!cartShown)}
+				buttonText="OK"
+				sendHandler={sendHandler}
+			/>
 		</SafeAreaView>
 	);
 };

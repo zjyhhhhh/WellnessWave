@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { SafeAreaView, View, Text, StyleSheet } from "react-native";
 import { RecordStackParamList } from "../../../types";
-import SportsBarChart from "../../components/SportsBarChart";
+import SportsBarChart from "../../components/Record/Sports/SportsBarChart";
 import { format, parseISO } from "date-fns";
 import { height, width } from "../../constants/Layout";
 import Font from "../../constants/Font";
@@ -28,7 +28,14 @@ const SportsScreen = ({ navigation: { navigate } }: Props) => {
 	return (
 		<SafeAreaView>
 			<View style={styles.header}>
-				<AntDesign name="arrowleft" size={iconSize} color="black" />
+				<AntDesign
+					name="arrowleft"
+					size={iconSize}
+					color="black"
+					onPress={() => {
+						navigate("History");
+					}}
+				/>
 				<AntDesign
 					name="plus"
 					size={iconSize}

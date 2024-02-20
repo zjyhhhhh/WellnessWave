@@ -1,6 +1,6 @@
 import React from "react";
 import { render, fireEvent, screen } from "@testing-library/react-native";
-import AppTextInput from "../../src/components/AppTextInput";
+import AppTextInput from "../../src/components/Welcome/AppTextInput";
 import Colors from "../../src/constants/Colors";
 import Font from "../../src/constants/Font";
 import FontSize from "../../src/constants/FontSize";

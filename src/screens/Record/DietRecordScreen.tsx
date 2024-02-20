@@ -6,12 +6,13 @@ import { height, width } from "../../constants/Layout";
 import { format, parseISO } from "date-fns";
 import Colors from "../../constants/Colors";
 import { Feather } from "@expo/vector-icons";
-import SidebarCategoryPicker from "../../components/SidebarCategoryPicker";
-import FoodSelectRow from "../../components/FoodSelectRow";
-import { FoodCategories, foodCategories } from "../../constants/FoodIcons";
+import SidebarCategoryPicker from "../../components/Record/RecordCart/SidebarCategoryPicker";
+import FoodIconComponent, { FoodCategories, foodCategories } from "../../constants/FoodIcons";
 import DishOrange from "../../assets/icons/DishOrange.svg";
-import FoodDeleteRow from "../../components/FoodDeleteRow";
 import { recordStyles as styles } from "./style";
+import SelectRow from "../../components/Record/RecordCart/SelectRow";
+import DeleteRow from "../../components/Record/RecordCart/DeleteRow";
+import BottomContainer from "../../components/Record/RecordCart/BottomContainer";
 
 type Props = NativeStackScreenProps<RecordStackParamList, "DietRecord">;
 
@@ -87,7 +88,7 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 						<Text style={styles.itemCategoryTitle}>{category}</Text>
 						<View style={{ width: "100%" }}>
 							{menu.map((food) => (
-								<FoodSelectRow
+								<SelectRow
 									key={food}
 									iconName={food}
 									selected={selectedItems.includes(food) ? true : false}
@@ -99,6 +100,7 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 											setSelectedItems([...selectedItems, food]);
 										}
 									}}
+									IconComponent={FoodIconComponent}
 								/>
 							))}
 						</View>
@@ -111,37 +113,28 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 					<ScrollView>
 						<View style={{ width: "100%" }}>
 							{selectedItems.map((food) => (
-								<FoodDeleteRow
+								<DeleteRow
 									iconName={food}
 									key={food}
 									deleteHandler={() => {
 										const newSelectedItems = selectedItems.filter((item) => item !== food);
 										setSelectedItems(newSelectedItems);
 									}}
+									IconComponent={FoodIconComponent}
 								/>
 							))}
 						</View>
 					</ScrollView>
 				</View>
 			)}
-			<View style={styles.bottomContainer}>
-				<View style={styles.bottom}>
-					<View>
-						<TouchableOpacity onPress={() => setCartShown(!cartShown)}>
-							<DishOrange height={0.15 * width} width={0.15 * width} />
-						</TouchableOpacity>
-						{selectedItems.length > 0 && (
-							<View style={styles.bottomCount}>
-								<Text style={styles.bottomCountText}>{selectedItems.length}</Text>
-							</View>
-						)}
-					</View>
-					<Text style={styles.cartTitle}>{type}</Text>
-				</View>
-				<TouchableOpacity style={styles.bottomButton} onPress={sendHandler}>
-					<Text style={styles.bottomButtonText}>OK</Text>
-				</TouchableOpacity>
-			</View>
+			<BottomContainer
+				iconComponent={<DishOrange height={0.15 * width} width={0.15 * width} />}
+				title={type}
+				count={selectedItems.length}
+				cartController={() => setCartShown(!cartShown)}
+				buttonText="OK"
+				sendHandler={sendHandler}
+			/>
 		</SafeAreaView>
 	);
 };

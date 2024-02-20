@@ -2,8 +2,8 @@ import { useState } from "react";
 import { View, SafeAreaView, TouchableOpacity, StyleSheet } from "react-native";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { AntDesign } from "@expo/vector-icons";
-import { height, width } from "../constants/Layout";
-import Colors from "../constants/Colors";
+import { height, width } from "../../constants/Layout";
+import Colors from "../../constants/Colors";
 
 interface DatePickerHeaderProps {
 	value?: Date;

@@ -1,12 +1,12 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { height, width } from "../constants/Layout";
-import Colors from "../constants/Colors";
-import FontSize from "../constants/FontSize";
-import Font from "../constants/Font";
-import Breakfast from "../assets/icons/Breakfast.svg";
-import Lunch from "../assets/icons/Lunch.svg";
-import Dinner from "../assets/icons/Dinner.svg";
-import Snack from "../assets/icons/Snack.svg";
+import { height, width } from "../../../constants/Layout";
+import Colors from "../../../constants/Colors";
+import FontSize from "../../../constants/FontSize";
+import Font from "../../../constants/Font";
+import Breakfast from "../../../assets/icons/Breakfast.svg";
+import Lunch from "../../../assets/icons/Lunch.svg";
+import Dinner from "../../../assets/icons/Dinner.svg";
+import Snack from "../../../assets/icons/Snack.svg";
 
 interface RecordMealButtonProps {
 	type: "Breakfast" | "Lunch" | "Dinner" | "Snack";

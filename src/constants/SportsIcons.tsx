@@ -129,7 +129,7 @@ export const sportsCategories: SportsCategories = {
 	],
 };
 
-const IconComponent: React.FC<{ activity: string; iconSize: number }> = ({
+const SportsIconComponent: React.FC<{ activity: string; iconSize: number }> = ({
 	activity,
 	iconSize,
 }) => {
@@ -148,4 +148,4 @@ const IconComponent: React.FC<{ activity: string; iconSize: number }> = ({
 	);
 };
 
-export default IconComponent;
+export default SportsIconComponent;
