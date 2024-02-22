@@ -1,62 +1,62 @@
-import { BarChart } from "react-native-chart-kit";
-import { View, Dimensions } from "react-native";
-
-const screenWidth = Dimensions.get("window").width;
-
-const data = {
-	labels: ["Jan 9", "Jan 30", "Jan 31", "Feb 1", "Feb 2", "Feb 3", "Feb 4"],
-	datasets: [
-		{
-			data: [45, 30, 80, 81, 56, 55, 40],
-			color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
-			label: "Aerobics",
-		},
-		{
-			data: [30, 70, 45, 60, 75, 60, 70],
-			color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`, // optional
-			label: "Anaerobic",
-		},
-	],
-};
-
-const chartConfig = {
-	backgroundColor: "#ffffff",
-	backgroundGradientFrom: "#ffffff",
-	backgroundGradientTo: "#ffffff",
-	decimalPlaces: 0, // optional, defaults to 2dp
-	color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-	labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-	style: {
-		borderRadius: 16,
-		paddingVertical: 10,
-	},
-	propsForDots: {
-		r: "0", // this will hide the dots
-	},
-	propsForBackgroundLines: {
-		stroke: "#e3e3e3", // this will set the color of the background lines
-		strokeDasharray: "", // this will make the background lines solid
-	},
-	barRadius: 5, // this will add the rounded corners
-	fillShadowGradient: "#787878", // color of the bars
-	fillShadowGradientOpacity: 1,
-};
+import { View, Text } from "react-native";
+import ActivityGrowthBarChart from "./ActivityGrowthBarChart";
+import { height, width } from "../../../constants/Layout";
+import FontSize from "../../../constants/FontSize";
+import Font from "../../../constants/Font";
+import MyDonutChart from "./SportsTypePieChart";
 
 const SportsBarChart = () => {
 	return (
-		<View>
-			<BarChart
-				data={data}
-				width={screenWidth}
-				height={220}
-				yAxisLabel="%"
-				yAxisSuffix="k"
-				chartConfig={chartConfig}
-				verticalLabelRotation={30}
-				fromZero={true}
-				showBarTops={false}
-				withInnerLines={false}
-			/>
+		<View
+			style={{
+				flexDirection: "column",
+				alignItems: "center",
+				justifyContent: "center",
+				height: height * 0.45,
+				paddingHorizontal: width * 0.08,
+				paddingVertical: height * 0.02,
+			}}
+		>
+			<View
+				style={{
+					height: "100%",
+					width: "100%",
+					borderRadius: 20,
+					shadowColor: "#000",
+					backgroundColor: "#fffff8",
+					shadowOffset: {
+						width: 0,
+						height: 2,
+					},
+					shadowOpacity: 0.25,
+					shadowRadius: 4,
+				}}
+			>
+				<View
+					style={{
+						flexDirection: "row",
+						alignItems: "center",
+						justifyContent: "flex-start",
+						paddingTop: "5%",
+						paddingHorizontal: "10%",
+					}}
+				>
+					<Text
+						style={{
+							zIndex: 100,
+							color: "black",
+							fontSize: FontSize.large,
+							fontFamily: Font["poppins-semiBold"],
+						}}
+					>
+						Activity Growth
+					</Text>
+				</View>
+				<ActivityGrowthBarChart />
+			</View>
+			{/* <View>
+				<MyDonutChart />
+			</View> */}
 		</View>
 	);
 };
