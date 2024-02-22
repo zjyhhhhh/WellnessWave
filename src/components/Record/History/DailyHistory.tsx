@@ -1,13 +1,12 @@
 import { View, Text, StyleSheet } from "react-native";
-import { height, width } from "../constants/Layout";
-import Colors from "../constants/Colors";
-import FontSize from "../constants/FontSize";
-import Font from "../constants/Font";
-import MealHistoryRow from "./MealHistoryRow";
+import { height, width } from "../../../constants/Layout";
+import Colors from "../../../constants/Colors";
+import FontSize from "../../../constants/FontSize";
+import Font from "../../../constants/Font";
+import DailyHistoryClass from "./DailyHistoryClass";
 
-interface MealHistoryProps {
-	type: "Breakfast" | "Lunch" | "Dinner" | "Snack";
-	data: { iconName: string }[];
+interface DailyHistoryRecordProps {
+	date: string;
 }
 
 const styles = StyleSheet.create({
@@ -29,26 +28,23 @@ const styles = StyleSheet.create({
 		fontFamily: Font["poppins-semiBold"],
 		alignSelf: "flex-start",
 	},
-	dailyHistoryContentContainer: {
+	dailyHistoryDetailContainer: {
 		flexDirection: "column",
 		justifyContent: "flex-start",
 		alignItems: "flex-start",
-		marginTop: 0.01 * width,
-		alignSelf: "flex-start",
 	},
 });
 
-const MealHistory = ({ type, data }: MealHistoryProps) => {
+const DailyHistoryRecord = ({ date }: DailyHistoryRecordProps) => {
 	return (
 		<View style={styles.dailyHistoryContainer}>
-			<Text style={styles.dailyHistoryTitle}>{type}</Text>
-			<View style={styles.dailyHistoryContentContainer}>
-				{data.map((item, index) => (
-					<MealHistoryRow key={index} iconName={item.iconName} />
-				))}
+			<Text style={styles.dailyHistoryTitle}>{date}</Text>
+			<View style={styles.dailyHistoryDetailContainer}>
+				<DailyHistoryClass type="Diet" />
+				<DailyHistoryClass type="Sports" />
 			</View>
 		</View>
 	);
 };
 
-export default MealHistory;
+export default DailyHistoryRecord;

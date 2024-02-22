@@ -1,10 +1,10 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { View, Text, SafeAreaView, StyleSheet } from "react-native";
 import { RecordStackParamList } from "../../../types";
-import RecordMealButton from "../../components/RecordMealButton";
+import RecordMealButton from "../../components/Record/Diet/RecordMealButton";
 import { height, width } from "../../constants/Layout";
-import MealHistory from "../../components/MealHistory";
-import DatePickerHeader from "../../components/DatePickerHeader";
+import MealHistory from "../../components/Record/Diet/MealHistory";
+import DatePickerHeader from "../../components/Record/DatePickerHeader";
 import { useEffect, useState } from "react";
 
 type Props = NativeStackScreenProps<RecordStackParamList, "Diet">;

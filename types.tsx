@@ -22,4 +22,5 @@ export type RecordStackParamList = {
 	DietRecord: { date: string; type: string };
 	History: undefined;
 	Sports: undefined;
+	SportsRecord: undefined;
 };

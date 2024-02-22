@@ -1,11 +1,11 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { height, width } from "../constants/Layout";
-import Colors from "../constants/Colors";
-import FontSize from "../constants/FontSize";
-import Font from "../constants/Font";
-import Dish from "../assets/icons/Dish.svg";
-import Dumbbell from "../assets/icons/Dumbbell.svg";
-import HeartBeat from "../assets/icons/HeartBeat.svg";
+import { height, width } from "../../constants/Layout";
+import Colors from "../../constants/Colors";
+import FontSize from "../../constants/FontSize";
+import Font from "../../constants/Font";
+import Dish from "../../assets/icons/Dish.svg";
+import Dumbbell from "../../assets/icons/Dumbbell.svg";
+import HeartBeat from "../../assets/icons/HeartBeat.svg";
 
 interface RecordButtonProps {
 	type: "Diet" | "Sports" | "Health";
