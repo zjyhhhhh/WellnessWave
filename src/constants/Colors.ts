@@ -1,4 +1,4 @@
-const white = "#fff";
+const white = "#fffff8";
 const black = "#000";
 const dark = "#626262";
 const orange = "#fea415";
