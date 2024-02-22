@@ -6,7 +6,7 @@ import FontSize from "../constants/FontSize";
 import Colors from "../constants/Colors";
 import { MomentStackParamList } from "../../types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import AllFeedScreen from "./AllFeedScreen";
+import AllFeedScreen from "./FeedScreen/AllFeedScreen";
 
 type Props = NativeStackScreenProps<MomentStackParamList, "Feed">;
 const Tab = createMaterialTopTabNavigator();
