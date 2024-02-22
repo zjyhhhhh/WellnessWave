@@ -25,7 +25,7 @@ const AuthenticationNavigator: React.FC = () => {
 			try {
 				const userToken = await AsyncStorage.getItem("userToken");
 				setUserIsAuthenticated(!!userToken);
-				// setUserIsAuthenticated(false);
+				setUserIsAuthenticated(false);
 			} catch (error) {
 				console.error("Error checking authentication:", error);
 			}
@@ -45,7 +45,9 @@ const AuthenticationNavigator: React.FC = () => {
 					headerShown: false,
 				}}
 			>
-				{userIsAuthenticated ? (
+
+				
+ 				{userIsAuthenticated ? (
 					<Stack.Screen name="Home" component={HomeNavigator} />
 				) : (
 					<>

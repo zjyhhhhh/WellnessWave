@@ -8,6 +8,8 @@ export type RootStackParamList = {
 export type MomentStackParamList = {
 	Feed: undefined;
 	Search: undefined;
+	PostImageScreen: { imageBase64: string[] };
+	PostDetailScreen: {  };
 };
 
 export type ProfileStackParamList = {
