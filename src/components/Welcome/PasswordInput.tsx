@@ -1,6 +1,6 @@
 import { TextInputProps, View, TouchableOpacity } from "react-native";
 import React from "react";
-import Spacing from "../constants/Spacing";
+import Spacing from "../../constants/Spacing";
 import { Ionicons } from "@expo/vector-icons";
 import AppTextInput from "./AppTextInput";
 

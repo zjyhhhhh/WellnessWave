@@ -1,14 +1,10 @@
 import { View, Text, StyleSheet } from "react-native";
-import { width } from "../constants/Layout";
-import Colors from "../constants/Colors";
-import FontSize from "../constants/FontSize";
-import Font from "../constants/Font";
+import { width } from "../../../constants/Layout";
+import Colors from "../../../constants/Colors";
+import FontSize from "../../../constants/FontSize";
+import Font from "../../../constants/Font";
 import { AntDesign } from "@expo/vector-icons";
-import Milk from "../assets/icons/food/Milk.svg";
-import Sandwich from "../assets/icons/food/Sandwich.svg";
-import { FC } from "react";
-import { SvgProps } from "react-native-svg";
-import { foodIcons } from "../constants/FoodIcons";
+import FoodIconComponent from "../../../constants/FoodIcons";
 
 interface DailyHistoryClassProps {
 	type: "Diet" | "Sports";
@@ -61,12 +57,11 @@ interface RowProps {
 }
 
 const Row = ({ iconName, text }: RowProps) => {
-	const IconComponent = foodIcons[iconName];
 	const iconSize = width * 0.058;
 
 	return (
 		<View style={styles.dailyHistoryDetailClassContentRow}>
-			{IconComponent && <IconComponent height={iconSize} width={iconSize} />}
+			<FoodIconComponent activity={iconName} iconSize={iconSize} />
 			<Text style={styles.dailyHistoryDetailClassContentText}>{text}</Text>
 		</View>
 	);

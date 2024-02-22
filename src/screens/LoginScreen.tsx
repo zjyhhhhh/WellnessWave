@@ -8,8 +8,8 @@ import Font from "../constants/Font";
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../types";
-import AppTextInput from "../components/AppTextInput";
-import PasswordInput from "../components/PasswordInput";
+import AppTextInput from "../components/Welcome/AppTextInput";
+import PasswordInput from "../components/Welcome/PasswordInput";
 import { emailVerifier, passwordVerifier } from "../utils/formatVerifier";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
