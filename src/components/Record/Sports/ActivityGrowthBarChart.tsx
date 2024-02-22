@@ -16,35 +16,11 @@ interface DataItem {
 	y: number;
 }
 
-const dataAerobics: DataItem[] = [
-	{ x: "Jan 29", y: 20 },
-	{ x: "Jan 30", y: 30 },
-	{ x: "Jan 31", y: 50 },
-	{ x: "Feb 1", y: 60 },
-	{ x: "Feb 2", y: 70 },
-	{ x: "Feb 3", y: 80 },
-	{ x: "Feb 4", y: 90 },
-];
-
-const dataBallGames: DataItem[] = [
-	{ x: "Jan 29", y: 40 },
-	{ x: "Jan 30", y: 10 },
-	{ x: "Jan 31", y: 20 },
-	{ x: "Feb 1", y: 30 },
-	{ x: "Feb 2", y: 40 },
-	{ x: "Feb 3", y: 50 },
-	{ x: "Feb 4", y: 60 },
-];
-
-const dataStrength: DataItem[] = [
-	{ x: "Jan 29", y: 30 },
-	{ x: "Jan 30", y: 50 },
-	{ x: "Jan 31", y: 70 },
-	{ x: "Feb 1", y: 80 },
-	{ x: "Feb 2", y: 50 },
-	{ x: "Feb 3", y: 30 },
-	{ x: "Feb 4", y: 30 },
-];
+interface ActivityGrowthBarChartProps {
+	dataAerobics: DataItem[];
+	dataBallGames: DataItem[];
+	dataStrength: DataItem[];
+}
 
 const colors = {
 	aerobics: "#CA6B6E",
@@ -52,9 +28,12 @@ const colors = {
 	strength: "#D08627",
 };
 
-const spacerData = dataAerobics.map((point) => ({ x: point.x, y: 5 }));
-
-const ActivityGrowthBarChart = () => {
+const ActivityGrowthBarChart = ({
+	dataAerobics,
+	dataBallGames,
+	dataStrength,
+}: ActivityGrowthBarChartProps) => {
+	const spacerData = dataAerobics.map((point) => ({ x: point.x, y: point.y === 0 ? 0 : 2 }));
 	return (
 		<View
 			style={{

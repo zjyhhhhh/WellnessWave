@@ -15,14 +15,17 @@ const data = [
 	{ x: "Others", y: 100 },
 ];
 
-const SportsTypePieChart: React.FC = () => {
+interface SportsTypePieChartProps {
+	data: { x: string; y: number }[];
+}
+
+const SportsTypePieChart = ({ data }: SportsTypePieChartProps) => {
 	return (
 		<View>
 			<VictoryPie
 				width={width}
 				height={height * 0.35}
 				data={data}
-				theme={VictoryTheme.material}
 				colorScale={["#BCB1E6", "#CF80D6", "#A8A9B7", "#8CD8EE", "#FFB1A1", "#93DCA7", "#F78585"]}
 				innerRadius={(width * 0.4) / 2}
 				labelComponent={
