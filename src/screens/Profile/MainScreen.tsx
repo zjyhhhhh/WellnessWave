@@ -153,17 +153,24 @@ const MainScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 
 				<View style={styles.profileActionsContainer}>
 					<View style={styles.userStatsContainer}>
-						<View style={styles.connectContainer}>
+						<TouchableOpacity
+							style = {styles.connectContainer}
+							onPress={() => navigate("FocusUsers")}
+						>
 							<Text style={styles.connectText}>Focus</Text>
-							<Text style={styles.connectText}>0</Text>
-						</View>
-						<View style={styles.connectContainer}>
+							<Text style={styles.connectText}>20</Text>
+						</TouchableOpacity>	
+						<TouchableOpacity
+							style = {styles.connectContainer}
+							onPress={() => navigate("FansUsers")}
+						>
 							<Text style={styles.connectText}>Fans</Text>
-							<Text style={styles.connectText}>0</Text>
-						</View>
+							<Text style={styles.connectText}>15</Text>
+						</TouchableOpacity>	
 					</View>
 					<View style={styles.profileActionButtonsContainer}>
-						<TouchableOpacity style={styles.profileEditButton}>
+						<TouchableOpacity style={styles.profileEditButton} 
+						onPress={() => {navigate("Edit");}}>
 							<Text style={styles.profileEditButtonText}>Edit Profile</Text>
 						</TouchableOpacity>
 
