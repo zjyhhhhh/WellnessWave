@@ -17,6 +17,9 @@ export type ProfileStackParamList = {
 	Main: undefined;
 	Setting: undefined;
 	Edit: undefined;
+	FocusUsers: undefined;
+	FansUsers: undefined;
+
 };
 
 export type RecordStackParamList = {
