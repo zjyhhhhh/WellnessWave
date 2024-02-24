@@ -8,6 +8,8 @@ export type RootStackParamList = {
 export type MomentStackParamList = {
 	Feed: undefined;
 	Search: undefined;
+	PostImageScreen: { imageBase64: string[] };
+	PostDetailScreen: {  };
 };
 
 export type ProfileStackParamList = {
@@ -15,6 +17,9 @@ export type ProfileStackParamList = {
 	Main: undefined;
 	Setting: undefined;
 	Edit: undefined;
+	FocusUsers: undefined;
+	FansUsers: undefined;
+
 };
 
 export type RecordStackParamList = {
