@@ -1,27 +1,30 @@
 import base64
-from datetime import datetime
+from datetime import datetime, date
 from io import BytesIO
 import os
-from typing import Optional, List
+from typing import Optional, List, Dict
 from bson import ObjectId
 from pydantic import ConfigDict, BaseModel, Field, EmailStr
 from pydantic.functional_validators import BeforeValidator
 from typing_extensions import Annotated
 from passlib.context import CryptContext
-import boto3
+import uuid
+# from customized_datatype import Sport
+import json
+# import boto3
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
+# AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+# AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+# S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
 
-s3_client = boto3.client(
-    's3',
-    aws_access_key_id=AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=AWS_SECRET_ACCESS_KEY
-)
+# s3_client = boto3.client(
+#     's3',
+#     aws_access_key_id=AWS_ACCESS_KEY_ID,
+#     aws_secret_access_key=AWS_SECRET_ACCESS_KEY
+# )
 
 
 class UserModel(BaseModel):
@@ -31,7 +34,7 @@ class UserModel(BaseModel):
 
     def hash_password(self):
         self.password = pwd_context.hash(self.password)
-    username: Optional[PyObjectId] = Field(alias="_id")
+    username: PyObjectId = Field(alias="_id")
     email: EmailStr = Field(...)
     password: str = Field(...)
     nickname: str = Field(default=None)
@@ -118,22 +121,22 @@ class PostModel(BaseModel):
     Container for a single post.
     """
 
-    def upload_imgageList_to_s3(self):
-        for i, image in enumerate(self.postContent.contextImage):
-            image_s3_path = f"{self.auther}/post_images/{self.postDate}/image_{i}.jpg"
-            s3_client.upload_fileobj(
-                image,
-                S3_BUCKET_NAME,
-                image_s3_path,
-                ExtraArgs={'ContentType': 'image/jpeg'}  # 或根据实际图片类型调整
-            )
-            self.ContextImage[i] = image_s3_path
+    # def upload_imgageList_to_s3(self):
+    #     for i, image in enumerate(self.postContent.contextImage):
+    #         image_s3_path = f"{self.auther}/post_images/{self.postDate}/image_{i}.jpg"
+    #         s3_client.upload_fileobj(
+    #             image,
+    #             S3_BUCKET_NAME,
+    #             image_s3_path,
+    #             ExtraArgs={'ContentType': 'image/jpeg'}  # 或根据实际图片类型调整
+    #         )
+    #         self.ContextImage[i] = image_s3_path
 
-    def get_imageList_from_s3(self):
-        for i, image_s3_path in enumerate(self.postContent.contextImage):
-            image = BytesIO()
-            s3_client.download_fileobj(S3_BUCKET_NAME, image_s3_path, image)
-            self.ContextImage[i] = image
+    # def get_imageList_from_s3(self):
+    #     for i, image_s3_path in enumerate(self.postContent.contextImage):
+    #         image = BytesIO()
+    #         s3_client.download_fileobj(S3_BUCKET_NAME, image_s3_path, image)
+    #         self.ContextImage[i] = image
 
     postContent: PostContentModel = Field(...)
     author: PyObjectId = Field(...)
@@ -190,3 +193,53 @@ class UserProfileModel(BaseModel):
         populate_by_name=True,
         arbitrary_types_allowed=True,
     )
+
+class DietModel(BaseModel):
+    """
+    Container for user's daily diet
+    """
+    username: PyObjectId = Field(...)
+    log_date: datetime = Field(default_factory=date.today)
+    breakfast: List[str] = Field(default_factory=list)
+    lunch: List[str] = Field(default_factory=list)
+    dinner: List[str] = Field(default_factory=list)
+    snack: List[str] = Field(default_factory=list)
+
+    class Config:
+        arbitrary_types_allowed = True
+        schema_extra = {
+            "example": {
+                "username": "example-user",
+                "log_date": "2024-02-23",
+                "breakfast": ["eggs", "salad"],
+                "lunch": ["steak"],
+                "dinner": ["salad"],
+                "snack": []  # 假设snack可以为空
+            }
+        }
+
+
+class Sport(BaseModel):
+    name: str
+    duration: int
+
+
+class SportsModel(BaseModel):
+    """
+    Container for user's daily sports
+    """
+    username: PyObjectId = Field(...)
+    log_date: datetime = Field(default_factory=date.today)
+    sports: List[Sport] = Field(default_factory=list)
+
+    class Config:
+        orm_mode = True  # 如果使用ORM模式
+        arbitrary_types_allowed = True
+        schema_extra = {
+            "example": {
+                "username": "example-user",
+                "log_date": "2024-02-23",
+                "sports": [{"name": "swimming", "duration": 30}]
+            }
+        }
+
