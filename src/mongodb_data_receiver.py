@@ -4,7 +4,7 @@ from bson import ObjectId
 from fastapi import FastAPI, Body, HTTPException, Request, status
 from dotenv import load_dotenv
 import motor.motor_asyncio
-from models import PostContentModel, PostModel, UserModel
+from models import PostContentModel, PostModel, UserModel, DietModel
 from passlib.context import CryptContext
 from pydantic import ConfigDict, BaseModel, Field, EmailStr
 import jwt
@@ -46,37 +46,38 @@ client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGODB_URL"])
 db = client["WellnessWave"]
 userCollections = db.get_collection("users")
 postCollections = db.get_collection("posts")
+dietCollections = db.get_collection("diets")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-@app.middleware("http")
-async def auth_middleware(request: Request, call_next):
-    skip_paths = ["/users/login", "/users/register"]
-    path = request.url.path
+# @app.middleware("http")
+# async def auth_middleware(request: Request, call_next):
+#     skip_paths = ["/users/login", "/users/register"]
+#     path = request.url.path
 
-    if path not in skip_paths:
-        token = request.headers.get("Authorization")
-        if token is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+#     if path not in skip_paths:
+#         token = request.headers.get("Authorization")
+#         if token is None:
+#             raise HTTPException(
+#                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
-        try:
-            payload = jwt.decode(
-                token, os.environ["SECRET_KEY"], algorithms=[os.environ["ALGORITHM"]])
-            # request.state.username = payload["sub"]
-            username = payload["sub"]
-            user_dict = await userCollections.find_one({"_id": username})
-            if not user_dict:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-            request.state.username = username
-        except jwt.PyJWTError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+#         try:
+#             payload = jwt.decode(
+#                 token, os.environ["SECRET_KEY"], algorithms=[os.environ["ALGORITHM"]])
+#             # request.state.username = payload["sub"]
+#             username = payload["sub"]
+#             user_dict = await userCollections.find_one({"_id": username})
+#             if not user_dict:
+#                 raise HTTPException(
+#                     status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+#             request.state.username = username
+#         except jwt.PyJWTError:
+#             raise HTTPException(
+#                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
-    response = await call_next(request)
-    return response
+#     response = await call_next(request)
+#     return response
 
 
 @app.post(
@@ -296,3 +297,44 @@ async def get_user_profile(userId: str):
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     user["_id"] = str(user["_id"])
     return user
+
+
+@app.post("/post_user_diet/{userId}", response_model_by_alias=True, status_code=status.HTTP_201_CREATED)
+async def post_user_diet(userId: str, diets: DietModel= Body(...)):
+    diet = await dietCollections.find_one({"username": userId})
+
+    if not diet:
+        await dietCollections.insert_one(diets.model_dump(by_alias=True))
+        return {"message": "Deit record successfully."}
+    else:
+        await dietCollections.update_one({"username": userId}, {"$set": 
+            diets.model_dump(by_alias=True)
+        })
+        return {"message": "Deit update successfully."}
+
+
+@app.get("/get_user_diet/{userId}/{date}", response_model_by_alias=True)
+async def get_user_diet(userId: str, date: str):
+    formatted_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ")
+    document = await dietCollections.find_one({"username": userId, "log_date": formatted_date})
+    
+    if document:
+        document['_id'] = str(document['_id'])
+        return document
+    else:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+
+@app.get("/get_user_diets/{userId}", response_model_by_alias=True)
+async def get_user_diet(userId: str):
+    cursor = dietCollections.find({"username": userId})
+    documents = await cursor.to_list(length=None)
+    if documents:
+        documents_formatted = []
+        for document in documents:
+            document['_id'] = str(document['_id'])
+            documents_formatted.append(document)
+        return documents_formatted
+    else:
+        raise HTTPException(status_code=404, detail="No documents found")
+    
