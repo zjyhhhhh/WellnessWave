@@ -40,7 +40,7 @@ const data = {
 	Snack: [],
 };
 
-const DietScreen = ({ navigation: { navigate } }: Props) => {
+const DietScreen = ({ navigation }: Props) => {
 	const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
 	useEffect(() => {
@@ -48,7 +48,10 @@ const DietScreen = ({ navigation: { navigate } }: Props) => {
 	}, [selectedDate]);
 
 	const recordHandler = (type: string) => {
-		navigate("DietRecord", { date: selectedDate.toISOString().slice(0, 10), type: type });
+		navigation.navigate("DietRecord", {
+			date: selectedDate.toISOString().slice(0, 10),
+			type: type,
+		});
 	};
 
 	return (
@@ -57,6 +60,7 @@ const DietScreen = ({ navigation: { navigate } }: Props) => {
 				onDateChange={(date: Date) => {
 					setSelectedDate(date);
 				}}
+				backHandler={() => navigation.goBack()}
 			/>
 			<View style={styles.newRecordContainer}>
 				<RecordMealButton type="Breakfast" pressHandler={() => recordHandler("Breakfast")} />

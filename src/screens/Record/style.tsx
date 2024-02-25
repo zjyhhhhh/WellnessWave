@@ -127,3 +127,49 @@ export const recordStyles = StyleSheet.create({
 		fontFamily: Font["poppins-semiBold"],
 	},
 });
+
+export const sportsScreenStyles = StyleSheet.create({
+	header: {
+		backgroundColor: "white",
+		padding: 0.04 * width,
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignContent: "space-between",
+		borderBottomWidth: 2,
+		borderBottomColor: Colors.gray,
+		height: 0.06 * height,
+	},
+	bodyContainer: {
+		flexDirection: "column",
+		alignItems: "center",
+		justifyContent: "center",
+		height: height * 0.45,
+		paddingHorizontal: width * 0.08,
+		paddingVertical: height * 0.02,
+	},
+	growthContainer: {
+		height: "100%",
+		width: "100%",
+		borderRadius: 20,
+		shadowColor: Colors.text,
+		backgroundColor: Colors.background,
+		shadowOffset: {
+			width: 0,
+			height: 2,
+		},
+		shadowOpacity: 0.25,
+		shadowRadius: 4,
+	},
+	growthTitleContainer: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "flex-start",
+		paddingTop: "5%",
+		paddingHorizontal: "10%",
+	},
+	growthTitle: {
+		color: Colors.text,
+		fontSize: FontSize.large,
+		fontFamily: Font["poppins-semiBold"],
+	},
+});

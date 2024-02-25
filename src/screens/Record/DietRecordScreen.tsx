@@ -13,6 +13,7 @@ import { recordStyles as styles } from "./style";
 import SelectRow from "../../components/Record/RecordCart/SelectRow";
 import DeleteRow from "../../components/Record/RecordCart/DeleteRow";
 import BottomContainer from "../../components/Record/RecordCart/BottomContainer";
+import DatePickerHeader from "../../components/Record/DatePickerHeader";
 
 type Props = NativeStackScreenProps<RecordStackParamList, "DietRecord">;
 
@@ -55,11 +56,10 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 
 	return (
 		<SafeAreaView style={{ flex: 1, marginBottom: -34 }}>
-			<View style={styles.header}>
-				<Text style={styles.headerText}>
-					{format(parseISO(date), "MMM d, yyyy")} - {type}
-				</Text>
-			</View>
+			<DatePickerHeader
+				title={`${format(parseISO(date), "MMM d, yyyy")} - ${type}`}
+				backHandler={() => navigation.goBack()}
+			></DatePickerHeader>
 			<View>
 				<View style={styles.searchBar}>
 					<Feather name="search" size={18} color="black" />
