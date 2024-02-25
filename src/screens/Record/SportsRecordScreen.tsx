@@ -75,6 +75,7 @@ const SportsRecordScreen = ({ navigation, route }: Props) => {
 				onDateChange={(date: Date) => {
 					setSelectedDate(date);
 				}}
+				backHandler={() => navigation.goBack()}
 			/>
 			<View>
 				<View style={styles.searchBar}>

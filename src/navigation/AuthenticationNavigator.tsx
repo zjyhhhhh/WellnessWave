@@ -24,8 +24,8 @@ const AuthenticationNavigator: React.FC = () => {
 		const checkAuthentication = async () => {
 			try {
 				const userToken = await AsyncStorage.getItem("userToken");
-				// setUserIsAuthenticated(!!userToken);
-				setUserIsAuthenticated(true);
+				setUserIsAuthenticated(!!userToken);
+				// setUserIsAuthenticated(false);
 			} catch (error) {
 				console.error("Error checking authentication:", error);
 			}
