@@ -9,6 +9,7 @@ import { sportsScreenStyles as styles } from "./style";
 import { useEffect, useState } from "react";
 import { SportsCategories, sportsCategories } from "../../constants/SportsIcons";
 import { formatDateToShortMonthDay, generateDateRange } from "../../utils/dateFormater";
+import DatePickerHeader from "../../components/Record/DatePickerHeader";
 
 type Props = NativeStackScreenProps<RecordStackParamList, "Sports">;
 
@@ -24,7 +25,7 @@ function initializeDataItems(dateRange: string[]): DataItem[] {
 	});
 }
 
-const SportsScreen = ({ navigation: { navigate } }: Props) => {
+const SportsScreen = ({ navigation }: Props) => {
 	const date = new Date();
 	const currentDate = date.toISOString().slice(0, 10);
 	date.setDate(date.getDate() - 7);
@@ -136,24 +137,10 @@ const SportsScreen = ({ navigation: { navigate } }: Props) => {
 
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
-			<View style={styles.header}>
-				<AntDesign
-					name="arrowleft"
-					size={0.06 * width}
-					color="black"
-					onPress={() => {
-						navigate("History");
-					}}
-				/>
-				<AntDesign
-					name="plus"
-					size={0.06 * width}
-					color="black"
-					onPress={() => {
-						navigate("SportsRecord");
-					}}
-				/>
-			</View>
+			<DatePickerHeader
+				backHandler={() => navigation.goBack()}
+				addHandler={() => navigation.navigate("SportsRecord")}
+			/>
 			<View style={{ flex: 1 }}>
 				<View style={styles.bodyContainer}>
 					<View style={styles.growthContainer}>
