@@ -8,6 +8,8 @@ import FoodIconComponent from "../../../constants/FoodIcons";
 
 interface DailyHistoryClassProps {
 	type: "Diet" | "Sports";
+	data: string[];
+	IconComponent: React.ElementType;
 }
 
 const styles = StyleSheet.create({
@@ -53,21 +55,21 @@ const styles = StyleSheet.create({
 
 interface RowProps {
 	iconName: string;
-	text: string;
+	IconComponent: React.ElementType;
 }
 
-const Row = ({ iconName, text }: RowProps) => {
+const Row = ({ iconName, IconComponent }: RowProps) => {
 	const iconSize = width * 0.058;
 
 	return (
 		<View style={styles.dailyHistoryDetailClassContentRow}>
-			<FoodIconComponent activity={iconName} iconSize={iconSize} />
-			<Text style={styles.dailyHistoryDetailClassContentText}>{text}</Text>
+			<IconComponent activity={iconName} iconSize={iconSize} />
+			<Text style={styles.dailyHistoryDetailClassContentText}>{iconName}</Text>
 		</View>
 	);
 };
 
-const DailyHistoryClass = ({ type }: DailyHistoryClassProps) => {
+const DailyHistoryClass = ({ type, data, IconComponent }: DailyHistoryClassProps) => {
 	return (
 		<View style={styles.dailyHistoryDetailClassContainer}>
 			<View style={styles.dailyHistoryDetailClassHeader}>
@@ -75,8 +77,9 @@ const DailyHistoryClass = ({ type }: DailyHistoryClassProps) => {
 				<AntDesign name="arrowright" size={16} color={Colors.darkGray} />
 			</View>
 			<View style={styles.dailyHistoryDetailClassContentContainer}>
-				<Row iconName="Milk" text="Milk" />
-				<Row iconName="Sandwich" text="Sandwich" />
+				{data.map((item) => (
+					<Row iconName={item} IconComponent={IconComponent} key={item} />
+				))}
 			</View>
 		</View>
 	);

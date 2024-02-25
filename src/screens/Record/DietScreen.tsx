@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { View, Text, SafeAreaView, StyleSheet } from "react-native";
+import { View, SafeAreaView, StyleSheet } from "react-native";
 import { RecordStackParamList } from "../../../types";
 import RecordMealButton from "../../components/Record/Diet/RecordMealButton";
 import { height, width } from "../../constants/Layout";
@@ -20,22 +20,8 @@ const styles = StyleSheet.create({
 });
 
 const data = {
-	Breakfast: [
-		{
-			iconName: "Milk",
-		},
-		{
-			iconName: "Sandwich",
-		},
-	],
-	Lunch: [
-		{
-			iconName: "Pizza",
-		},
-		{
-			iconName: "CocaCola",
-		},
-	],
+	Breakfast: ["Milk", "Pizza"],
+	Lunch: ["Sandwich"],
 	Dinner: [],
 	Snack: [],
 };

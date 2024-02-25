@@ -4,6 +4,7 @@ import RecordButton from "../../components/Record/RecordButton";
 import DailyHistoryRecord from "../../components/Record/History/DailyHistory";
 import { RecordStackParamList } from "../../../types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { formatDateToRelativeDay } from "../../utils/dateFormater";
 
 type Props = NativeStackScreenProps<RecordStackParamList, "History">;
 
@@ -16,6 +17,24 @@ const styles = StyleSheet.create({
 		marginBottom: 0.03 * height,
 	},
 });
+
+const data = [
+	{
+		date: "2024-02-02",
+		diet: ["Milk", "Sandwich"],
+		sports: ["Running", "Swimming", "Baseball"],
+	},
+	{
+		date: "2024-02-01",
+		diet: ["Milk", "Sandwich"],
+		sports: ["Boxing", "Soccer"],
+	},
+	{
+		date: "2024-01-31",
+		diet: ["Milk", "Peanut", "Pizza", "Pudding"],
+		sports: ["Badminton", "Swimming", "Running"],
+	},
+];
 
 const HistoryScreen = ({ navigation: { navigate } }: Props) => {
 	return (
@@ -37,9 +56,14 @@ const HistoryScreen = ({ navigation: { navigate } }: Props) => {
 					<RecordButton type="Health" />
 				</View>
 				<View>
-					<DailyHistoryRecord date="Today" />
-					<DailyHistoryRecord date="Yesterday" />
-					<DailyHistoryRecord date="31 Jan" />
+					{data.map((item, index) => (
+						<DailyHistoryRecord
+							key={index}
+							date={formatDateToRelativeDay(item.date)}
+							diet={item.diet}
+							sports={item.sports}
+						/>
+					))}
 				</View>
 			</ScrollView>
 		</SafeAreaView>
