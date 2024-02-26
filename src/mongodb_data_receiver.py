@@ -4,7 +4,7 @@ from bson import ObjectId
 from fastapi import FastAPI, Body, HTTPException, Request, status
 from dotenv import load_dotenv
 import motor.motor_asyncio
-from models import PostContentModel, PostModel, UserModel, DietModel
+from models import PostContentModel, PostModel, UserModel, DietModel, SportsModel
 from passlib.context import CryptContext
 from pydantic import ConfigDict, BaseModel, Field, EmailStr
 import jwt
@@ -51,33 +51,33 @@ dietCollections = db.get_collection("diets")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-# @app.middleware("http")
-# async def auth_middleware(request: Request, call_next):
-#     skip_paths = ["/users/login", "/users/register"]
-#     path = request.url.path
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    skip_paths = ["/users/login", "/users/register"]
+    path = request.url.path
 
-#     if path not in skip_paths:
-#         token = request.headers.get("Authorization")
-#         if token is None:
-#             raise HTTPException(
-#                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    if path not in skip_paths:
+        token = request.headers.get("Authorization")
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
-#         try:
-#             payload = jwt.decode(
-#                 token, os.environ["SECRET_KEY"], algorithms=[os.environ["ALGORITHM"]])
-#             # request.state.username = payload["sub"]
-#             username = payload["sub"]
-#             user_dict = await userCollections.find_one({"_id": username})
-#             if not user_dict:
-#                 raise HTTPException(
-#                     status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-#             request.state.username = username
-#         except jwt.PyJWTError:
-#             raise HTTPException(
-#                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+        try:
+            payload = jwt.decode(
+                token, os.environ["SECRET_KEY"], algorithms=[os.environ["ALGORITHM"]])
+            # request.state.username = payload["sub"]
+            username = payload["sub"]
+            user_dict = await userCollections.find_one({"_id": username})
+            if not user_dict:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+            request.state.username = username
+        except jwt.PyJWTError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
-#     response = await call_next(request)
-#     return response
+    response = await call_next(request)
+    return response
 
 
 @app.post(
@@ -299,22 +299,31 @@ async def get_user_profile(userId: str):
     return user
 
 
-@app.post("/post_user_diet/{userId}", response_model_by_alias=True, status_code=status.HTTP_201_CREATED)
-async def post_user_diet(userId: str, diets: DietModel= Body(...)):
-    diet = await dietCollections.find_one({"username": userId})
+@app.post("/post_user_diet/", response_model_by_alias=True, status_code=status.HTTP_201_CREATED)
+async def post_user_diet(diets_request: DietModel= Body(...)):
+    username = getattr(diets_request, 'username', None)
+    date = getattr(diets_request, 'log_date', None)
 
-    if not diet:
-        await dietCollections.insert_one(diets.model_dump(by_alias=True))
+    diet_record = await dietCollections.find_one({"username": username, "log_date": date})
+
+    if not diet_record:
+        await dietCollections.insert_one(diets_request.model_dump(by_alias=True))
         return {"message": "Deit record successfully."}
     else:
-        await dietCollections.update_one({"username": userId}, {"$set": 
-            diets.model_dump(by_alias=True)
+        update_diets = diets_request.model_dump(by_alias=True)
+        for meal in update_diets["diets"]:
+            if update_diets["diets"][meal] != []:
+                diet_record["diets"][meal] = update_diets["diets"][meal]
+
+        await dietCollections.update_one({"username": username, "log_date": date}, {"$set": 
+            diet_record
         })
         return {"message": "Deit update successfully."}
 
 
-@app.get("/get_user_diet/{userId}/{date}", response_model_by_alias=True)
-async def get_user_diet(userId: str, date: str):
+@app.get("/get_user_diet/{date}", response_model_by_alias=True)
+async def get_user_diet(date: str, request: Request):
+    userId = getattr(request.state, 'username')
     formatted_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ")
     document = await dietCollections.find_one({"username": userId, "log_date": formatted_date})
     
@@ -325,8 +334,10 @@ async def get_user_diet(userId: str, date: str):
         raise HTTPException(status_code=404, detail="Item not found")
 
 
-@app.get("/get_user_diets/{userId}", response_model_by_alias=True)
-async def get_user_diet(userId: str):
+@app.get("/get_user_diets/", response_model_by_alias=True)
+async def get_user_diet(request: Request):
+    userId = getattr(request.state, 'username')
+    print(userId)
     cursor = dietCollections.find({"username": userId})
     documents = await cursor.to_list(length=None)
     if documents:
@@ -338,3 +349,19 @@ async def get_user_diet(userId: str):
     else:
         raise HTTPException(status_code=404, detail="No documents found")
     
+
+@app.post("/post_user_sport/", response_model_by_alias=True, status_code=status.HTTP_201_CREATED)
+async def post_user_diet(sports: SportsModel = Body(...)):
+    username = getattr(sports, 'username', None)
+    log_date = getattr(sports, 'log_date', None)
+
+    sport = await dietCollections.find_one({"username": username, "log_date": log_date})
+
+    if not sport:
+        await dietCollections.insert_one(sports.model_dump(by_alias=True))
+        return {"message": "Sports record successfully."}
+    else:
+        await dietCollections.update_one({"username": username, "log_date": log_date}, {"$set": 
+            sports.model_dump(by_alias=True)
+        })
+        return {"message": "Sports update successfully."}   

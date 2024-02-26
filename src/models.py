@@ -194,16 +194,21 @@ class UserProfileModel(BaseModel):
         arbitrary_types_allowed=True,
     )
 
+
+class Diets(BaseModel):
+    breakfast: List[str] = Field(default_factory=list)
+    lunch: List[str] = Field(default_factory=list)
+    dinner: List[str] = Field(default_factory=list)
+    snack: List[str] = Field(default_factory=list)
+
+
 class DietModel(BaseModel):
     """
     Container for user's daily diet
     """
     username: PyObjectId = Field(...)
-    log_date: datetime = Field(default_factory=date.today)
-    breakfast: List[str] = Field(default_factory=list)
-    lunch: List[str] = Field(default_factory=list)
-    dinner: List[str] = Field(default_factory=list)
-    snack: List[str] = Field(default_factory=list)
+    log_date: datetime = Field(...)
+    diets: Diets
 
     class Config:
         arbitrary_types_allowed = True
@@ -211,10 +216,12 @@ class DietModel(BaseModel):
             "example": {
                 "username": "example-user",
                 "log_date": "2024-02-23",
-                "breakfast": ["eggs", "salad"],
-                "lunch": ["steak"],
-                "dinner": ["salad"],
-                "snack": []  # 假设snack可以为空
+                "diets": {
+                    "breakfast": ["eggs", "salad"],
+                    "lunch": ["steak"],
+                    "dinner": ["salad"],
+                    "snack": []  # 假设snack可以为空
+                }
             }
         }
 
