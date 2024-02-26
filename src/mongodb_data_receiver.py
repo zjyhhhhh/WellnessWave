@@ -52,33 +52,33 @@ sportCollections = db.get_collection("sports")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-@app.middleware("http")
-async def auth_middleware(request: Request, call_next):
-    skip_paths = ["/users/login", "/users/register"]
-    path = request.url.path
+# @app.middleware("http")
+# async def auth_middleware(request: Request, call_next):
+#     skip_paths = ["/users/login", "/users/register"]
+#     path = request.url.path
 
-    if path not in skip_paths:
-        token = request.headers.get("Authorization")
-        if token is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+#     if path not in skip_paths:
+#         token = request.headers.get("Authorization")
+#         if token is None:
+#             raise HTTPException(
+#                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
-        try:
-            payload = jwt.decode(
-                token, os.environ["SECRET_KEY"], algorithms=[os.environ["ALGORITHM"]])
-            # request.state.username = payload["sub"]
-            username = payload["sub"]
-            user_dict = await userCollections.find_one({"_id": username})
-            if not user_dict:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-            request.state.username = username
-        except jwt.PyJWTError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+#         try:
+#             payload = jwt.decode(
+#                 token, os.environ["SECRET_KEY"], algorithms=[os.environ["ALGORITHM"]])
+#             # request.state.username = payload["sub"]
+#             username = payload["sub"]
+#             user_dict = await userCollections.find_one({"_id": username})
+#             if not user_dict:
+#                 raise HTTPException(
+#                     status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+#             request.state.username = username
+#         except jwt.PyJWTError:
+#             raise HTTPException(
+#                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
-    response = await call_next(request)
-    return response
+#     response = await call_next(request)
+#     return response
 
 
 @app.post(
