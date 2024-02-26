@@ -47,6 +47,7 @@ db = client["WellnessWave"]
 userCollections = db.get_collection("users")
 postCollections = db.get_collection("posts")
 dietCollections = db.get_collection("diets")
+sportCollections = db.get_collection("sports")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -331,7 +332,7 @@ async def get_user_diet(date: str, request: Request):
         document['_id'] = str(document['_id'])
         return document
     else:
-        raise HTTPException(status_code=404, detail="Item not found")
+        return {}
 
 
 @app.get("/get_user_diets/", response_model_by_alias=True)
@@ -347,21 +348,56 @@ async def get_user_diet(request: Request):
             documents_formatted.append(document)
         return documents_formatted
     else:
-        raise HTTPException(status_code=404, detail="No documents found")
+        return []
     
 
 @app.post("/post_user_sport/", response_model_by_alias=True, status_code=status.HTTP_201_CREATED)
-async def post_user_diet(sports: SportsModel = Body(...)):
-    username = getattr(sports, 'username', None)
-    log_date = getattr(sports, 'log_date', None)
+async def post_user_diet(request: Request, sports_request: SportsModel = Body(...)):
+    username = getattr(request.state, 'username', None)
+    log_date = getattr(sports_request, 'log_date', None)
 
-    sport = await dietCollections.find_one({"username": username, "log_date": log_date})
+    sport_record = await sportCollections.find_one({"username": username, "log_date": log_date})
 
-    if not sport:
-        await dietCollections.insert_one(sports.model_dump(by_alias=True))
+    if not sport_record:
+        await sportCollections.insert_one(sports_request.model_dump(by_alias=True))
         return {"message": "Sports record successfully."}
     else:
-        await dietCollections.update_one({"username": username, "log_date": log_date}, {"$set": 
-            sports.model_dump(by_alias=True)
+        update_sports = sports_request.model_dump(by_alias=True)
+        recorded_sports = [logged_sport["name"] for logged_sport in sport_record["sports"]]
+        for sport in update_sports["sports"]:
+            if sport["name"] not in recorded_sports:
+                sport_record["sports"].append(sport)
+
+        await sportCollections.update_many({"username": username, "log_date": log_date}, {"$set": 
+            sport_record
         })
-        return {"message": "Sports update successfully."}   
+        return {"message": "Sports update successfully."}  
+
+
+@app.get("/get_user_sport/{date}", response_model_by_alias=True)
+async def get_user_sport(date: str, request: Request):
+    userId = getattr(request.state, 'username')
+    formatted_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ")
+    document = await sportCollections.find_one({"username": userId, "log_date": formatted_date})
+    
+    if document:
+        document['_id'] = str(document['_id'])
+        return document
+    else:
+        return {}
+
+
+@app.get("/get_user_sports/", response_model_by_alias=True)
+async def get_user_sports(request: Request):
+    userId = getattr(request.state, 'username')
+    print(userId)
+    cursor = sportCollections.find({"username": userId})
+    documents = await cursor.to_list(length=None)
+    if documents:
+        documents_formatted = []
+        for document in documents:
+            document['_id'] = str(document['_id'])
+            documents_formatted.append(document)
+        return documents_formatted
+    else:
+        return []

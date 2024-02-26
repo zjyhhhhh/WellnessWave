@@ -236,7 +236,7 @@ class SportsModel(BaseModel):
     Container for user's daily sports
     """
     username: PyObjectId = Field(...)
-    log_date: datetime = Field(default_factory=date.today)
+    log_date: datetime = Field(...)
     sports: List[Sport] = Field(default_factory=list)
 
     class Config:
