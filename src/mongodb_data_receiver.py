@@ -4,7 +4,7 @@ from bson import ObjectId
 from fastapi import FastAPI, Body, HTTPException, Request, status
 from dotenv import load_dotenv
 import motor.motor_asyncio
-from models import PostContentModel, PostModel, UserModel, DietModel
+from models import PostContentModel, PostModel, UserModel, DietModel, SportsModel
 from passlib.context import CryptContext
 from pydantic import ConfigDict, BaseModel, Field, EmailStr
 import jwt
@@ -47,6 +47,7 @@ db = client["WellnessWave"]
 userCollections = db.get_collection("users")
 postCollections = db.get_collection("posts")
 dietCollections = db.get_collection("diets")
+sportCollections = db.get_collection("sports")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -299,22 +300,31 @@ async def get_user_profile(userId: str):
     return user
 
 
-@app.post("/post_user_diet/{userId}", response_model_by_alias=True, status_code=status.HTTP_201_CREATED)
-async def post_user_diet(userId: str, diets: DietModel= Body(...)):
-    diet = await dietCollections.find_one({"username": userId})
+@app.post("/post_user_diet/", response_model_by_alias=True, status_code=status.HTTP_201_CREATED)
+async def post_user_diet(diets_request: DietModel= Body(...)):
+    username = getattr(diets_request, 'username', None)
+    date = getattr(diets_request, 'log_date', None)
 
-    if not diet:
-        await dietCollections.insert_one(diets.model_dump(by_alias=True))
+    diet_record = await dietCollections.find_one({"username": username, "log_date": date})
+
+    if not diet_record:
+        await dietCollections.insert_one(diets_request.model_dump(by_alias=True))
         return {"message": "Deit record successfully."}
     else:
-        await dietCollections.update_one({"username": userId}, {"$set": 
-            diets.model_dump(by_alias=True)
+        update_diets = diets_request.model_dump(by_alias=True)
+        for meal in update_diets["diets"]:
+            if update_diets["diets"][meal] != []:
+                diet_record["diets"][meal] = update_diets["diets"][meal]
+
+        await dietCollections.update_one({"username": username, "log_date": date}, {"$set": 
+            diet_record
         })
         return {"message": "Deit update successfully."}
 
 
-@app.get("/get_user_diet/{userId}/{date}", response_model_by_alias=True)
-async def get_user_diet(userId: str, date: str):
+@app.get("/get_user_diet/{date}", response_model_by_alias=True)
+async def get_user_diet(date: str, request: Request):
+    userId = getattr(request.state, 'username')
     formatted_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ")
     document = await dietCollections.find_one({"username": userId, "log_date": formatted_date})
     
@@ -322,11 +332,13 @@ async def get_user_diet(userId: str, date: str):
         document['_id'] = str(document['_id'])
         return document
     else:
-        raise HTTPException(status_code=404, detail="Item not found")
+        return {}
 
 
-@app.get("/get_user_diets/{userId}", response_model_by_alias=True)
-async def get_user_diet(userId: str):
+@app.get("/get_user_diets/", response_model_by_alias=True)
+async def get_user_diet(request: Request):
+    userId = getattr(request.state, 'username')
+    print(userId)
     cursor = dietCollections.find({"username": userId})
     documents = await cursor.to_list(length=None)
     if documents:
@@ -336,5 +348,56 @@ async def get_user_diet(userId: str):
             documents_formatted.append(document)
         return documents_formatted
     else:
-        raise HTTPException(status_code=404, detail="No documents found")
+        return []
     
+
+@app.post("/post_user_sport/", response_model_by_alias=True, status_code=status.HTTP_201_CREATED)
+async def post_user_diet(request: Request, sports_request: SportsModel = Body(...)):
+    username = getattr(request.state, 'username', None)
+    log_date = getattr(sports_request, 'log_date', None)
+
+    sport_record = await sportCollections.find_one({"username": username, "log_date": log_date})
+
+    if not sport_record:
+        await sportCollections.insert_one(sports_request.model_dump(by_alias=True))
+        return {"message": "Sports record successfully."}
+    else:
+        update_sports = sports_request.model_dump(by_alias=True)
+        recorded_sports = [logged_sport["name"] for logged_sport in sport_record["sports"]]
+        for sport in update_sports["sports"]:
+            if sport["name"] not in recorded_sports:
+                sport_record["sports"].append(sport)
+
+        await sportCollections.update_many({"username": username, "log_date": log_date}, {"$set": 
+            sport_record
+        })
+        return {"message": "Sports update successfully."}  
+
+
+@app.get("/get_user_sport/{date}", response_model_by_alias=True)
+async def get_user_sport(date: str, request: Request):
+    userId = getattr(request.state, 'username')
+    formatted_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ")
+    document = await sportCollections.find_one({"username": userId, "log_date": formatted_date})
+    
+    if document:
+        document['_id'] = str(document['_id'])
+        return document
+    else:
+        return {}
+
+
+@app.get("/get_user_sports/", response_model_by_alias=True)
+async def get_user_sports(request: Request):
+    userId = getattr(request.state, 'username')
+    print(userId)
+    cursor = sportCollections.find({"username": userId})
+    documents = await cursor.to_list(length=None)
+    if documents:
+        documents_formatted = []
+        for document in documents:
+            document['_id'] = str(document['_id'])
+            documents_formatted.append(document)
+        return documents_formatted
+    else:
+        return []
