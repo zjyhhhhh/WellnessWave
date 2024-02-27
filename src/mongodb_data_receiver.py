@@ -325,14 +325,22 @@ async def post_user_diet(diets_request: DietModel= Body(...)):
 @app.get("/get_user_diet/{date}", response_model_by_alias=True)
 async def get_user_diet(date: str, request: Request):
     userId = getattr(request.state, 'username')
-    formatted_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ")
+    formatted_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
     document = await dietCollections.find_one({"username": userId, "log_date": formatted_date})
     
     if document:
         document['_id'] = str(document['_id'])
         return document
     else:
-        return {}
+        return {
+            "username": userId,
+            "log_date": formatted_date,
+            "diets": {
+                "breakfast": [],
+                "lunch": [],
+                "dinner": []
+            }
+        }
 
 
 @app.get("/get_user_diets/", response_model_by_alias=True)
@@ -377,7 +385,7 @@ async def post_user_diet(request: Request, sports_request: SportsModel = Body(..
 @app.get("/get_user_sport/{date}", response_model_by_alias=True)
 async def get_user_sport(date: str, request: Request):
     userId = getattr(request.state, 'username')
-    formatted_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ")
+    formatted_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
     document = await sportCollections.find_one({"username": userId, "log_date": formatted_date})
     
     if document:
