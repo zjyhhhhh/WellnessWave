@@ -17,7 +17,7 @@ import { PostDetailScreenStyle as StyleContainer } from "./styles";
 type Props = NativeStackScreenProps<MomentStackParamList, "PostDetailScreen">;
 
 const PostDetailScreen=({navigation}: Props) => {
-    const [commentCount, setCommentCount] = useState(3);
+    const [commentCount, setCommentCount] = useState(1);
 
     useEffect(() => {
         navigation.getParent()?.setOptions({

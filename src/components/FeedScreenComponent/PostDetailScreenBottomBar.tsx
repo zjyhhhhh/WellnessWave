@@ -14,15 +14,15 @@ const PostDetailScreenBottomBar: React.FC = () => {
       />
       <TouchableOpacity style={styles.iconButton}>
         <AntDesign name="like2" size={24} color="black" />  
-        <Text style={styles.numbers}>47</Text>
+        <Text style={styles.numbers}>72</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.iconButton}>
         <AntDesign name="dislike2" size={24} color="black" />
-        <Text style={styles.numbers}>23</Text>
+        <Text style={styles.numbers}>3</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.iconButton}>
         <MaterialCommunityIcons name="comment-outline" size={24} color="black" />
-        <Text style={styles.numbers}>6</Text>
+        <Text style={styles.numbers}>1</Text>
       </TouchableOpacity>
     </View>
   );

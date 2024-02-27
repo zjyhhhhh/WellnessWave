@@ -5,6 +5,8 @@ import DietScreen from "../screens/Record/DietScreen";
 import DietRecordScreen from "../screens/Record/DietRecordScreen";
 import SportsScreen from "../screens/Record/SportsScreen";
 import SportsRecordScreen from "../screens/Record/SportsRecordScreen";
+import HealthFrontPageScreen from "../screens/Record/HealthFrontPageScreen";
+import LogHealthInfoScreen from "../screens/Record/LogHealthInfoScreen";
 
 const Stack = createNativeStackNavigator<RecordStackParamList>();
 
@@ -16,6 +18,8 @@ const RecordNavigator = ({}) => {
 			<Stack.Screen name="DietRecord" component={DietRecordScreen} />
 			<Stack.Screen name="Sports" component={SportsScreen} />
 			<Stack.Screen name="SportsRecord" component={SportsRecordScreen} />
+			<Stack.Screen name="HealthFrontPageScreen" component={HealthFrontPageScreen} />
+			<Stack.Screen name="LogHealthInfoScreen" component={LogHealthInfoScreen} />
 		</Stack.Navigator>
 	);
 };

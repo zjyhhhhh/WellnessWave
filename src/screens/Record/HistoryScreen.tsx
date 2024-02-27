@@ -53,7 +53,12 @@ const HistoryScreen = ({ navigation: { navigate } }: Props) => {
 							navigate("Sports");
 						}}
 					/>
-					<RecordButton type="Health" />
+					<RecordButton 
+						type="Health" 
+						pressHandler={() => {
+							navigate("HealthFrontPageScreen");
+						}}
+					/>
 				</View>
 				<View>
 					{data.map((item, index) => (
