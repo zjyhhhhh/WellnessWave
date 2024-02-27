@@ -59,7 +59,7 @@ const SportsRecordScreen = ({ navigation, route }: Props) => {
 		const { userToken, username } = await getUserInfo();
 		console.log(selectedItems);
 		try {
-			const response = await fetch(`http://127.0.0.1:8000/post_user_sport/`, {
+			const response = await fetch(`http://3.17.14.65:8000/post_user_sport/`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

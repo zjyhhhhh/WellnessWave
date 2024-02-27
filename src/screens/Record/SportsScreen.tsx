@@ -10,6 +10,8 @@ import { useEffect, useState } from "react";
 import { SportsCategories, sportsCategories } from "../../constants/SportsIcons";
 import { formatDateToShortMonthDay, generateDateRange } from "../../utils/dateFormater";
 import DatePickerHeader from "../../components/Record/DatePickerHeader";
+import { VictoryArea, VictoryAxis, VictoryChart, VictoryLine } from "victory-native";
+import { Defs, LinearGradient, Stop } from "react-native-svg";
 
 type Props = NativeStackScreenProps<RecordStackParamList, "Sports">;
 
@@ -135,6 +137,15 @@ const SportsScreen = ({ navigation }: Props) => {
 		setDataStrength(newDataStrength);
 	}, []);
 
+	const data = [
+		{ x: 1, y: 70 },
+		{ x: 2, y: 100 },
+		{ x: 3, y: 80 },
+		{ x: 4, y: 90 },
+		{ x: 5, y: 70 },
+		{ x: 6, y: 100 },
+	];
+
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
 			<DatePickerHeader
@@ -155,6 +166,36 @@ const SportsScreen = ({ navigation }: Props) => {
 					</View>
 					<View style={{ flex: 1 }}>
 						<SportsTypePieChart data={sortedSports} />
+						{/* <VictoryChart>
+							<Defs>
+								<LinearGradient id="myGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+									<Stop offset="0%" stopColor="green" stopOpacity="1" />
+									<Stop offset="100%" stopColor="green" stopOpacity="0" />
+								</LinearGradient>
+							</Defs>
+							<VictoryArea
+								style={{
+									data: { fill: "url(#myGradient)" },
+								}}
+								data={data}
+								interpolation="natural"
+							/>
+							<VictoryAxis
+								style={{
+									axis: { stroke: "transparent" },
+									ticks: { stroke: "transparent" },
+									tickLabels: { fill: "transparent" },
+								}}
+							/>
+							<VictoryAxis
+								dependentAxis
+								style={{
+									axis: { stroke: "transparent" },
+									ticks: { stroke: "transparent" },
+									tickLabels: { fill: "transparent" },
+								}}
+							/>
+						</VictoryChart> */}
 					</View>
 				</View>
 			</View>

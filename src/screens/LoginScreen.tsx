@@ -22,7 +22,7 @@ const LoginScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 
 	const loginHandler = async () => {
 		if (emailVerifier(email) && passwordVerifier(password)) {
-			const response = await fetch(`http:127.0.0.1:8000/users/login`, {
+			const response = await fetch(`http:3.17.14.65:8000/users/login`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
