@@ -45,9 +45,7 @@ const AuthenticationNavigator: React.FC = () => {
 					headerShown: false,
 				}}
 			>
-
-				
- 				{userIsAuthenticated ? (
+				{userIsAuthenticated ? (
 					<Stack.Screen name="Home" component={HomeNavigator} />
 				) : (
 					<>
