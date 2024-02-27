@@ -28,4 +28,6 @@ export type RecordStackParamList = {
 	History: undefined;
 	Sports: undefined;
 	SportsRecord: undefined;
+	HealthFrontPageScreen: undefined;
+	LogHealthInfoScreen: undefined;
 };
