@@ -1,6 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { SafeAreaView, View, Text } from "react-native";
-import { SafeAreaView, View, Text } from "react-native";
 import { RecordStackParamList } from "../../../types";
 import { height, width } from "../../constants/Layout";
 import { AntDesign } from "@expo/vector-icons";
