@@ -52,33 +52,33 @@ sportCollections = db.get_collection("sports")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-# @app.middleware("http")
-# async def auth_middleware(request: Request, call_next):
-#     skip_paths = ["/users/login", "/users/register"]
-#     path = request.url.path
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    skip_paths = ["/users/login", "/users/register"]
+    path = request.url.path
 
-#     if path not in skip_paths:
-#         token = request.headers.get("Authorization")
-#         if token is None:
-#             raise HTTPException(
-#                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    if path not in skip_paths:
+        token = request.headers.get("Authorization")
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
-#         try:
-#             payload = jwt.decode(
-#                 token, os.environ["SECRET_KEY"], algorithms=[os.environ["ALGORITHM"]])
-#             # request.state.username = payload["sub"]
-#             username = payload["sub"]
-#             user_dict = await userCollections.find_one({"_id": username})
-#             if not user_dict:
-#                 raise HTTPException(
-#                     status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-#             request.state.username = username
-#         except jwt.PyJWTError:
-#             raise HTTPException(
-#                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+        try:
+            payload = jwt.decode(
+                token, os.environ["SECRET_KEY"], algorithms=[os.environ["ALGORITHM"]])
+            # request.state.username = payload["sub"]
+            username = payload["sub"]
+            user_dict = await userCollections.find_one({"_id": username})
+            if not user_dict:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+            request.state.username = username
+        except jwt.PyJWTError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
-#     response = await call_next(request)
-#     return response
+    response = await call_next(request)
+    return response
 
 
 @app.post(
@@ -325,14 +325,22 @@ async def post_user_diet(diets_request: DietModel= Body(...)):
 @app.get("/get_user_diet/{date}", response_model_by_alias=True)
 async def get_user_diet(date: str, request: Request):
     userId = getattr(request.state, 'username')
-    formatted_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ")
+    formatted_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
     document = await dietCollections.find_one({"username": userId, "log_date": formatted_date})
     
     if document:
         document['_id'] = str(document['_id'])
         return document
     else:
-        return {}
+        return {
+            "username": userId,
+            "log_date": formatted_date,
+            "diets": {
+                "breakfast": [],
+                "lunch": [],
+                "dinner": []
+            }
+        }
 
 
 @app.get("/get_user_diets/", response_model_by_alias=True)
@@ -377,7 +385,7 @@ async def post_user_diet(request: Request, sports_request: SportsModel = Body(..
 @app.get("/get_user_sport/{date}", response_model_by_alias=True)
 async def get_user_sport(date: str, request: Request):
     userId = getattr(request.state, 'username')
-    formatted_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ")
+    formatted_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
     document = await sportCollections.find_one({"username": userId, "log_date": formatted_date})
     
     if document:
