@@ -74,7 +74,6 @@ const SportsScreen = ({ navigation }: Props) => {
 			try {
 				const response = await fetch(
 					`http://127.0.0.1:8000/get_user_sports/?startDate=${previousDate}&endDate=${currentDate}`,
-					// `http://127.0.0.1:8000/get_user_sports/${previousDate}-${currentDate}`,
 					{
 						method: "GET",
 						headers: {

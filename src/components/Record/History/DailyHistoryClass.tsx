@@ -77,8 +77,8 @@ const DailyHistoryClass = ({ type, data, IconComponent }: DailyHistoryClassProps
 				<AntDesign name="arrowright" size={16} color={Colors.darkGray} />
 			</View>
 			<View style={styles.dailyHistoryDetailClassContentContainer}>
-				{data.map((item) => (
-					<Row iconName={item} IconComponent={IconComponent} key={item} />
+				{data.map((item, index) => (
+					<Row iconName={item} IconComponent={IconComponent} key={index} />
 				))}
 			</View>
 		</View>
