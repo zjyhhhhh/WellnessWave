@@ -34,6 +34,7 @@ const ActivityGrowthBarChart = ({
 	dataStrength,
 }: ActivityGrowthBarChartProps) => {
 	const spacerData = dataAerobics.map((point) => ({ x: point.x, y: point.y === 0 ? 0 : 2 }));
+
 	return (
 		<View
 			style={{

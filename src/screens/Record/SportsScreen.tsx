@@ -1,8 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { SafeAreaView, View, Text } from "react-native";
 import { RecordStackParamList } from "../../../types";
-import { height, width } from "../../constants/Layout";
-import { AntDesign } from "@expo/vector-icons";
 import ActivityGrowthBarChart from "../../components/Record/Sports/ActivityGrowthBarChart";
 import SportsTypePieChart from "../../components/Record/Sports/SportsTypePieChart";
 import { sportsScreenStyles as styles } from "./style";
@@ -10,8 +8,8 @@ import { useEffect, useState } from "react";
 import { SportsCategories, sportsCategories } from "../../constants/SportsIcons";
 import { formatDateToShortMonthDay, generateDateRange } from "../../utils/dateFormater";
 import DatePickerHeader from "../../components/Record/DatePickerHeader";
-import { VictoryArea, VictoryAxis, VictoryChart, VictoryLine } from "victory-native";
-import { Defs, LinearGradient, Stop } from "react-native-svg";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsFocused } from "@react-navigation/native";
 
 type Props = NativeStackScreenProps<RecordStackParamList, "Sports">;
 
@@ -20,95 +18,106 @@ interface DataItem {
 	y: number;
 }
 
+interface SportActivity {
+	name: string;
+	duration: number;
+}
+
+interface SportRecord {
+	date: string;
+	sports: SportActivity[];
+}
+
+interface SportResponse {
+	records: SportRecord[];
+}
+
 function initializeDataItems(dateRange: string[]): DataItem[] {
 	return dateRange.map((date) => {
 		const formattedDate = formatDateToShortMonthDay(date);
 		return { x: formattedDate, y: 0 };
 	});
 }
+const getUserInfo = async () => {
+	const userToken = await AsyncStorage.getItem("userToken");
+	const username = await AsyncStorage.getItem("username");
+	return { userToken, username };
+};
 
 const SportsScreen = ({ navigation }: Props) => {
 	const date = new Date();
+	const isFocused = useIsFocused();
 	const currentDate = date.toISOString().slice(0, 10);
 	date.setDate(date.getDate() - 7);
-	const previousDate = date.toLocaleString().slice(0, 10);
-	const dateRange = generateDateRange(new Date("2024-02-20"), new Date("2024-02-26"));
+	const previousDate = date.toISOString().slice(0, 10);
+	const dateRange = generateDateRange(new Date(previousDate), new Date(currentDate));
 	const [dataAerobics, setDataAerobics] = useState<DataItem[]>(initializeDataItems(dateRange));
 	const [dataBallGames, setDataBallGames] = useState<DataItem[]>(initializeDataItems(dateRange));
 	const [dataStrength, setDataStrength] = useState<DataItem[]>(initializeDataItems(dateRange));
 	const [sortedSports, setSortedSports] = useState<DataItem[]>([]);
+	const [data, setData] = useState<SportResponse>({ records: [] });
+
 	useEffect(() => {
-		// GET /record/{userId}/range?startDate=2024-02-20&endDate=2024-02-27
-		// const response = fetch(
-		// 	`${process.env.EXPO_PUBLIC_API_URL}:${process.env.EXPO_PUBLIC_PORT}/record/1/range?startDate=${previousDate}&endDate=${currentDate}`
-		// );
-		const response = {
-			records: [
-				{
-					date: "2024-02-20",
-					sports: [
-						{ name: "Running", duration: 30 },
-						{ name: "Swimming", duration: 13 },
-						{ name: "Cycling", duration: 10 },
-					],
-				},
-				{
-					date: "2024-02-21",
-					sports: [
-						{ name: "Yoga", duration: 10 },
-						{ name: "Skiing", duration: 50 },
-					],
-				},
-				{
-					date: "2024-02-22",
-					sports: [
-						{ name: "Basketball", duration: 60 },
-						{ name: "Swimming", duration: 20 },
-					],
-				},
-				{
-					date: "2024-02-23",
-					sports: [
-						{ name: "Weightlifting", duration: 60 },
-						{ name: "Running", duration: 30 },
-					],
-				},
-				{
-					date: "2024-02-24",
-					sports: [{ name: "Running", duration: 30 }],
-				},
-				{
-					date: "2024-02-25",
-					sports: [{ name: "Yoga", duration: 30 }],
-				},
-				{
-					date: "2024-02-26",
-					sports: [
-						{ name: "Weightlifting", duration: 40 },
-						{ name: "Running", duration: 30 },
-					],
-				},
-			],
+		const transformData = (jsonData: any[]) => {
+			return jsonData.map((record) => {
+				return {
+					date: record.log_date.split("T")[0], // 从 ISO 字符串中提取日期部分
+					sports: record.sports.map((sport: { name: string; duration: number }) => ({
+						name: sport.name,
+						duration: sport.duration,
+					})),
+				};
+			});
 		};
+		const fetchData = async () => {
+			const { userToken, username } = await getUserInfo();
+			try {
+				const response = await fetch(
+					`http://127.0.0.1:8000/get_user_sports/?startDate=${previousDate}&endDate=${currentDate}`,
+					// `http://127.0.0.1:8000/get_user_sports/${previousDate}-${currentDate}`,
+					{
+						method: "GET",
+						headers: {
+							Authorization: `${userToken}`,
+						},
+					}
+				);
+				const jsonData = await response.json();
+				const transformedData = transformData(jsonData);
+
+				setData({ records: transformedData });
+			} catch (error) {
+				console.error("Network error:", error);
+			}
+		};
+		if (isFocused) {
+			fetchData();
+		}
+	}, [previousDate, currentDate, isFocused]);
+
+	useEffect(() => {
 		const newDataAerobics = [...dataAerobics];
 		const newDataBallGames = [...dataBallGames];
 		const newDataStrength = [...dataStrength];
 		const sportsDurationSum: { [key: string]: number } = {};
 
 		dateRange.forEach((date, index) => {
-			const record = response.records.find((record) => record.date === date);
+			const record = data.records.find((record) => record.date === date);
+
+			const updateDuration = (category: keyof SportsCategories, updateState: DataItem[]) => {
+				const duration = record
+					? record.sports
+							.filter((sport) => sportsCategories[category].includes(sport.name))
+							.reduce((acc, sport) => acc + sport.duration, 0)
+					: 0;
+				updateState[index].y = duration;
+			};
+
+			updateDuration("aerobics", newDataAerobics);
+			updateDuration("ballgames", newDataBallGames);
+			updateDuration("strength", newDataStrength);
+
 			if (record) {
-				const updateDuration = (category: keyof SportsCategories, updateState: DataItem[]) => {
-					const duration = record.sports
-						.filter((sport) => sportsCategories[category].includes(sport.name))
-						.reduce((acc, sport) => acc + sport.duration, 0);
-					updateState[index].y = duration;
-				};
-
-				updateDuration("aerobics", newDataAerobics);
-				updateDuration("ballgames", newDataBallGames);
-				updateDuration("strength", newDataStrength);
-
 				record.sports.forEach(({ name, duration }) => {
 					sportsDurationSum[name] = (sportsDurationSum[name] || 0) + duration;
 				});
@@ -135,16 +144,7 @@ const SportsScreen = ({ navigation }: Props) => {
 		setDataAerobics(newDataAerobics);
 		setDataBallGames(newDataBallGames);
 		setDataStrength(newDataStrength);
-	}, []);
-
-	const data = [
-		{ x: 1, y: 70 },
-		{ x: 2, y: 100 },
-		{ x: 3, y: 80 },
-		{ x: 4, y: 90 },
-		{ x: 5, y: 70 },
-		{ x: 6, y: 100 },
-	];
+	}, [data]);
 
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
@@ -166,36 +166,6 @@ const SportsScreen = ({ navigation }: Props) => {
 					</View>
 					<View style={{ flex: 1 }}>
 						<SportsTypePieChart data={sortedSports} />
-						{/* <VictoryChart>
-							<Defs>
-								<LinearGradient id="myGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-									<Stop offset="0%" stopColor="green" stopOpacity="1" />
-									<Stop offset="100%" stopColor="green" stopOpacity="0" />
-								</LinearGradient>
-							</Defs>
-							<VictoryArea
-								style={{
-									data: { fill: "url(#myGradient)" },
-								}}
-								data={data}
-								interpolation="natural"
-							/>
-							<VictoryAxis
-								style={{
-									axis: { stroke: "transparent" },
-									ticks: { stroke: "transparent" },
-									tickLabels: { fill: "transparent" },
-								}}
-							/>
-							<VictoryAxis
-								dependentAxis
-								style={{
-									axis: { stroke: "transparent" },
-									ticks: { stroke: "transparent" },
-									tickLabels: { fill: "transparent" },
-								}}
-							/>
-						</VictoryChart> */}
 					</View>
 				</View>
 			</View>
