@@ -37,7 +37,7 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 		const { userToken, username } = await getUserInfo();
 
 		try {
-			const response = await fetch(`http://3.17.14.65:8000/post_user_diet/`, {
+			const response = await fetch(`http://127.0.0.1:8000/post_user_diet/`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

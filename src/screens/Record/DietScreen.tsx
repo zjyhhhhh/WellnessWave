@@ -42,7 +42,7 @@ const DietScreen = ({ navigation }: Props) => {
 	getUserToken().then((token) => setUserToken(token));
 
 	const fetchData = async () => {
-		const response = await fetch(`http://3.17.14.65:8000/get_user_diet/${localDate}`, {
+		const response = await fetch(`http://127.0.0.1:8000/get_user_diet/${localDate}`, {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",

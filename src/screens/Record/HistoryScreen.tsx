@@ -37,6 +37,7 @@ const data = [
 ];
 
 const HistoryScreen = ({ navigation: { navigate } }: Props) => {
+	console.log("HistoryScreen");
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
 			<ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1, paddingBottom: 60 }}>
@@ -53,8 +54,8 @@ const HistoryScreen = ({ navigation: { navigate } }: Props) => {
 							navigate("Sports");
 						}}
 					/>
-					<RecordButton 
-						type="Health" 
+					<RecordButton
+						type="Health"
 						pressHandler={() => {
 							navigate("HealthFrontPageScreen");
 						}}
