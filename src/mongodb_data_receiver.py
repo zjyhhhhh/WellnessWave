@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 from bson import ObjectId
-from fastapi import FastAPI, Body, HTTPException, Request, status
+from fastapi import FastAPI, Body, HTTPException, Request, status, Query
 from dotenv import load_dotenv
 import motor.motor_asyncio
 from models import PostContentModel, PostModel, UserModel, DietModel, SportsModel
@@ -301,7 +301,7 @@ async def get_user_profile(userId: str):
 
 
 @app.post("/post_user_diet/", response_model_by_alias=True, status_code=status.HTTP_201_CREATED)
-async def post_user_diet(diets_request: DietModel= Body(...)):
+async def post_user_diet(diets_request: DietModel = Body(...)):
     username = getattr(diets_request, 'username', None)
     date = getattr(diets_request, 'log_date', None)
 
@@ -316,9 +316,9 @@ async def post_user_diet(diets_request: DietModel= Body(...)):
             if update_diets["diets"][meal] != []:
                 diet_record["diets"][meal] = update_diets["diets"][meal]
 
-        await dietCollections.update_one({"username": username, "log_date": date}, {"$set": 
-            diet_record
-        })
+        await dietCollections.update_one({"username": username, "log_date": date}, {"$set":
+                                                                                    diet_record
+                                                                                    })
         return {"message": "Deit update successfully."}
 
 
@@ -327,7 +327,7 @@ async def get_user_diet(date: str, request: Request):
     userId = getattr(request.state, 'username')
     formatted_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
     document = await dietCollections.find_one({"username": userId, "log_date": formatted_date})
-    
+
     if document:
         document['_id'] = str(document['_id'])
         return document
@@ -357,7 +357,7 @@ async def get_user_diet(request: Request):
         return documents_formatted
     else:
         return []
-    
+
 
 @app.post("/post_user_sport/", response_model_by_alias=True, status_code=status.HTTP_201_CREATED)
 async def post_user_diet(request: Request, sports_request: SportsModel = Body(...)):
@@ -371,15 +371,16 @@ async def post_user_diet(request: Request, sports_request: SportsModel = Body(..
         return {"message": "Sports record successfully."}
     else:
         update_sports = sports_request.model_dump(by_alias=True)
-        recorded_sports = [logged_sport["name"] for logged_sport in sport_record["sports"]]
+        recorded_sports = [logged_sport["name"]
+                           for logged_sport in sport_record["sports"]]
         for sport in update_sports["sports"]:
             if sport["name"] not in recorded_sports:
                 sport_record["sports"].append(sport)
 
-        await sportCollections.update_many({"username": username, "log_date": log_date}, {"$set": 
-            sport_record
-        })
-        return {"message": "Sports update successfully."}  
+        await sportCollections.update_many({"username": username, "log_date": log_date}, {"$set":
+                                                                                          sport_record
+                                                                                          })
+        return {"message": "Sports update successfully."}
 
 
 @app.get("/get_user_sport/{date}", response_model_by_alias=True)
@@ -387,7 +388,7 @@ async def get_user_sport(date: str, request: Request):
     userId = getattr(request.state, 'username')
     formatted_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
     document = await sportCollections.find_one({"username": userId, "log_date": formatted_date})
-    
+
     if document:
         document['_id'] = str(document['_id'])
         return document
@@ -396,16 +397,45 @@ async def get_user_sport(date: str, request: Request):
 
 
 @app.get("/get_user_sports/", response_model_by_alias=True)
-async def get_user_sports(request: Request):
+async def get_user_sports(
+    request: Request,
+    startDate: str = Query(None, alias="startDate"),
+    endDate: str = Query(None, alias="endDate")
+):
     userId = getattr(request.state, 'username')
-    print(userId)
-    cursor = sportCollections.find({"username": userId})
+
+    if startDate and endDate:
+        try:
+            start_date_formatted = datetime.strptime(startDate, "%Y-%m-%d")
+            end_date_formatted = datetime.strptime(endDate, "%Y-%m-%d")
+        except ValueError as e:
+            return {"error": "Invalid date format, please use YYYY-MM-DD."}
+
+        if start_date_formatted > end_date_formatted:
+            return {"error": "Start date must not be after end date."}
+
+        end_date_formatted = end_date_formatted.replace(
+            hour=23, minute=59, second=59)
+
+        query_filter = {
+            "username": userId,
+            "log_date": {
+                "$gte": start_date_formatted,
+                "$lte": end_date_formatted
+            }
+        }
+    else:
+        query_filter = {"username": userId}
+
+    cursor = sportCollections.find(query_filter)
     documents = await cursor.to_list(length=None)
+
     if documents:
         documents_formatted = []
         for document in documents:
             document['_id'] = str(document['_id'])
             documents_formatted.append(document)
+        print(documents_formatted)
         return documents_formatted
     else:
         return []
