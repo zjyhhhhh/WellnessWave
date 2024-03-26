@@ -346,7 +346,6 @@ async def get_user_diet(date: str, request: Request):
 @app.get("/get_user_diets/", response_model_by_alias=True)
 async def get_user_diet(request: Request):
     userId = getattr(request.state, 'username')
-    print(userId)
     cursor = dietCollections.find({"username": userId})
     documents = await cursor.to_list(length=None)
     if documents:
@@ -439,3 +438,36 @@ async def get_user_sports(
         return documents_formatted
     else:
         return []
+
+
+@app.get("/get_user_diets_sports/", response_model_by_alias=True)
+async def get_user_diets_sports(request: Request):
+    userId = getattr(request.state, 'username')
+
+    # 获取饮食记录
+    diet_cursor = dietCollections.find({"username": userId})
+    diet_documents = await diet_cursor.to_list(length=None)
+
+    sport_cursor = sportCollections.find({"username": userId})
+    sport_documents = await sport_cursor.to_list(length=None)
+
+    combined_data = {}
+    for doc in diet_documents:
+        date = doc['log_date'].strftime('%Y-%m-%d')
+        if date not in combined_data:
+            combined_data[date] = {"date": date, "diet": [], "sports": []}
+        combined_data[date]["diet"] += [
+            item for sublist in doc.get('diets', {}).values() for item in sublist
+        ]
+
+    for doc in sport_documents:
+        date = doc['log_date'].strftime('%Y-%m-%d')
+        if date not in combined_data:
+            combined_data[date] = {"date": date, "diet": [], "sports": []}
+        combined_data[date]["sports"] += [item['name']
+                                          for item in doc.get('sports', []) if 'name' in item]
+
+    data_list = sorted(combined_data.values(),
+                       key=lambda x: x['date'], reverse=True)
+
+    return data_list
