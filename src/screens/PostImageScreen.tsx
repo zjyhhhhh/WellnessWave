@@ -22,14 +22,12 @@ const PostImageScreen: React.FC<Props> = ({ route, navigation }) => {
 	const [contextText, setContextText] = useState("");
 
 	async function sendPost(contextText: string, photoURIs: string[], token: string) {
-		console.log(photoURIs);
 		const postData = {
 			contextText: contextText,
 			contextImage: photoURIs, // Array of base64 encoded strings
 		};
 
 		try {
-			console.log("ready to send post data to server...");
 			const response = await fetch(`http://127.0.0.1:8000/send_posts/`, {
 				method: "POST",
 				headers: {
@@ -42,48 +40,10 @@ const PostImageScreen: React.FC<Props> = ({ route, navigation }) => {
 			if (!response.ok) {
 				throw new Error("Network response was not ok");
 			}
-
-			const result = await response.json();
-			console.log("Post successful:", result);
 			navigation.goBack();
 		} catch (error) {
 			console.error("Error sending post:", error);
 		}
-		// console.log(photoURIs);
-		// const formData = new FormData();
-		// formData.append('contextText', contextText);
-
-		// photoURIs.forEach((uri, index) => {
-		//   formData.append(`contextImage[${index}]`, {
-		// 	name: `image${index}.jpg`,
-		// 	type: 'image/jpeg',
-		// 	uri,
-		//   } as any);
-		// });
-
-		// console.log(formData);
-
-		// try {
-		// 	console.log("ready to send post data to server...");
-		//   	const response = await fetch(`http://3.12.198.158:8000/send_posts/`, {
-		// 	method: 'POST',
-		// 	headers: {
-		// 	  'Authorization': `${token}`,
-		// 	  'Content-Type': 'application/json',
-		// 	},
-		// 	// body: formData,
-		// 	body: JSON.stringify(formData),
-		//   });
-
-		//   if (!response.ok) {
-		// 	throw new Error('Network response was not ok');
-		//   }
-
-		//   const result = await response.json();
-		//   console.log('Post successful:', result);
-		// } catch (error) {
-		//   console.error('Error sending post:', error);
-		// }
 	}
 
 	const handlePress = async () => {
