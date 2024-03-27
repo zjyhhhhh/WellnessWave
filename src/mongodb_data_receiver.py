@@ -1,10 +1,10 @@
 from datetime import datetime
 import os
 from bson import ObjectId
-from fastapi import FastAPI, Body, HTTPException, Request, status, Query
+from fastapi import FastAPI, Body, Form, HTTPException, Request, status, Query
 from dotenv import load_dotenv
 import motor.motor_asyncio
-from models import PostContentModel, PostModel, UserModel, DietModel, SportsModel
+from models import AddCommentModel, PostContentModel, PostModel, UserModel, DietModel, SportsModel
 from passlib.context import CryptContext
 from pydantic import ConfigDict, BaseModel, Field, EmailStr
 import jwt
@@ -133,26 +133,35 @@ async def create_post(request: Request, postContent: PostContentModel = Body(...
 # get all posts
 
 
+# @app.get("/get_posts/", response_model_by_alias=True)
+# async def get_posts(last_post_date: datetime = None, limit: int = 10):
+#     # two types of get requests
+#     # refresh: get the latest posts, no page number is sent in the request
+#     # load more: get more posts, the page number is sent in the request
+#     query = {}
+#     if last_post_date:
+#         query = {"postDate": {"$lt": last_post_date}}
+#     cursor = postCollections.find(query).sort("postDate", -1).limit(limit)
+#     posts = await cursor.to_list(length=limit)
+#     for post in posts:
+#         post["_id"] = str(post["_id"])
+
+#     del posts["comments"]
+
+#     return {
+#         "posts": posts
+#     }
+
 @app.get("/get_posts/", response_model_by_alias=True)
-async def get_posts(last_post_date: datetime = None, limit: int = 10):
-    # two types of get requests
-    # refresh: get the latest posts, no page number is sent in the request
-    # load more: get more posts, the page number is sent in the request
-    query = {}
-    if last_post_date:
-        query = {"postDate": {"$lt": last_post_date}}
-    cursor = postCollections.find(query).sort("postDate", -1).limit(limit)
-    posts = await cursor.to_list(length=limit)
+async def get_posts(request: Request):
+    cursor = postCollections.find().sort("postDate", -1)
+    posts = await cursor.to_list(length=5)
     for post in posts:
         post["_id"] = str(post["_id"])
-
-    del posts["comments"]
 
     return {
         "posts": posts
     }
-
-# get a single post
 
 
 @app.get("/get_post/{postId}", response_model_by_alias=True)
@@ -167,8 +176,8 @@ async def get_post(postId: str):
 # comment
 
 
-@app.post("/post_comments/{postId}",  status_code=status.HTTP_201_CREATED)
-async def post_comment(request: Request, postId: str, comment: str = Body(...)):
+@app.post("/add_comment/{postId}", status_code=status.HTTP_201_CREATED)
+async def add_comment(request: Request, postId: str, comment: str = Form(...)):
     username = getattr(request.state, 'username', None)
     post = await postCollections.find_one({"_id": ObjectId(postId)})
     if not post:
@@ -176,11 +185,11 @@ async def post_comment(request: Request, postId: str, comment: str = Body(...)):
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
     comment = {
         "author": username,
-        "comment": comment,
-        "commentDate": datetime.now()
+        "contentText": comment,
+        "postDate": datetime.now()
     }
     await postCollections.update_one(
-        {"_id": ObjectId(postId)}, {"$push": {"comments": comment}})
+        {"_id": ObjectId(postId)}, {"$push": {"commentList": comment}})
     return {"message": "Comment posted successfully."}
 
 
@@ -190,58 +199,38 @@ async def get_comments(postId: str):
     if not post:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
-    comments = post.get("comments", [])
-    return {"comments": comments}
+    comments = post["commentList"]
+    print(comments)
+    return comments
 
-# like
 
-
-@app.post("/like/{postId}", status_code=status.HTTP_201_CREATED)
-async def like_post(request: Request, postId: str):
+@app.post("/update_posts/like_dislike/{postId}")
+async def update_post_likes_dislikes(request: Request, postId: str, like: bool = Body(...), dislike: bool = Body(...)):
     username = getattr(request.state, 'username', None)
-    post = await postCollections.find_one({"_id": ObjectId(postId)})
-    if not post:
+    print(like, dislike)
+
+    update_operations = {}
+
+    if like:
+        update_operations["$addToSet"] = {"likes": username}
+        update_operations["$pull"] = {"dislikes": username}
+    elif dislike:
+        update_operations["$addToSet"] = {"dislikes": username}
+        update_operations["$pull"] = {"likes": username}
+    elif not like and not dislike:
+        update_operations["$pull"] = {"likes": username, "dislikes": username}
+
+    if not update_operations:
+        raise HTTPException(status_code=400, detail="Invalid reaction")
+
+    update_result = await postCollections.update_one(
+        {"_id": ObjectId(postId)}, update_operations)
+
+    if update_result.matched_count == 0:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
-    await postCollections.update_one({"_id": ObjectId(postId)}, {"$inc": {"likeCount": 1}})
-    return {"message": "Post liked successfully."}
+            status_code=404, detail=f"Post {postId} not found")
 
-
-@app.post("/unlike/{postId}", status_code=status.HTTP_201_CREATED)
-async def unlike_post(request: Request, postId: str):
-    username = getattr(request.state, 'username', None)
-    post = await postCollections.find_one({"_id": ObjectId(postId)})
-    if not post:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
-    await postCollections.update_one({"_id": ObjectId(postId)}, {"$inc": {"likeCount": -1}})
-    return {"message": "Post unliked successfully."}
-
-# dislike
-
-
-@app.post("/dislike/{postId}", status_code=status.HTTP_201_CREATED)
-async def dislike_post(request: Request, postId: str):
-    username = getattr(request.state, 'username', None)
-    post = await postCollections.find_one({"_id": ObjectId(postId)})
-    if not post:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
-    await postCollections.update_one({"_id": ObjectId(postId)}, {"$inc": {"dislikeCount": 1}})
-    return {"message": "Post disliked successfully."}
-
-
-@app.post("/undislike/{postId}", status_code=status.HTTP_201_CREATED)
-async def undislike_post(request: Request, postId: str):
-    username = getattr(request.state, 'username', None)
-    post = await postCollections.find_one({"_id": ObjectId(postId)})
-    if not post:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
-    await postCollections.update_one({"_id": ObjectId(postId)}, {"$inc": {"dislikeCount": -1}})
-    return {"message": "Post undisliked successfully."}
-
-# follow
+    return {"message": "Post reaction updated successfully"}
 
 
 @app.post("/follow/{userId}", status_code=status.HTTP_201_CREATED)

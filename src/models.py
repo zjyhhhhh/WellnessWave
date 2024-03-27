@@ -97,7 +97,7 @@ class CommentModel(BaseModel):
     """
     contentText: str = Field(...)
     auther: PyObjectId = Field(...)
-    autherInfo: UserInformationModel = Field(...)
+    autherInfo: UserInformationModel = Field(default=None)
     postDate: datetime = Field(default_factory=datetime.now)
     model_config = ConfigDict(
         populate_by_name=True,
@@ -140,11 +140,13 @@ class PostModel(BaseModel):
 
     postContent: PostContentModel = Field(...)
     author: PyObjectId = Field(...)
-    authorInfo: UserInformationModel = Field(...)
+    authorInfo: UserInformationModel = Field(default=None)
     postDate: datetime = Field(default_factory=datetime.now)
     commentList: List[CommentModel] = Field(default=[])
-    likeCount: int = Field(default=0)
-    dislikeCount: int = Field(default=0)
+    # likeCount: int = Field(default=0)
+    # dislikeCount: int = Field(default=0)
+    likes: List[str] = Field(default=[])
+    dislikes: List[str] = Field(default=[])
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
@@ -250,3 +252,6 @@ class SportsModel(BaseModel):
             }
         }
 
+
+class AddCommentModel(BaseModel):
+    comment: str = Field(...)
