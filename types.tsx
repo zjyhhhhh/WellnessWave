@@ -9,7 +9,7 @@ export type MomentStackParamList = {
 	Feed: undefined;
 	Search: undefined;
 	PostImageScreen: { imageBase64: string[] };
-	PostDetailScreen: {};
+	PostDetailScreen: { data: PostData };
 };
 
 export type ProfileStackParamList = {
@@ -30,3 +30,16 @@ export type RecordStackParamList = {
 	HealthFrontPageScreen: undefined;
 	LogHealthInfoScreen: undefined;
 };
+
+interface PostData {
+	postTitle: string;
+	postPersonImage: any;
+	postImage: any;
+	postText: string;
+	postDate: string;
+	likes: number;
+	isLiked: boolean;
+	dislikes: number;
+	isDisliked: boolean;
+	postId: string;
+}
