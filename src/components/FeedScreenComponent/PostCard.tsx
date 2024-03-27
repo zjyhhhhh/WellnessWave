@@ -30,7 +30,15 @@ const PostCard = ({ data, navigation }: PostCardProps) => {
 	const [dislikes, setDislikes] = useState(data.dislikes); // number of dislikes
 
 	const navigateToPostDetail = () => {
-		navigation.navigate("PostDetailScreen", { data: data });
+		navigation.navigate("PostDetailScreen", {
+			data: {
+				...data,
+				likes: likes,
+				dislikes: dislikes,
+				isLiked: like,
+				isDisliked: dislike,
+			},
+		});
 	};
 
 	return (
