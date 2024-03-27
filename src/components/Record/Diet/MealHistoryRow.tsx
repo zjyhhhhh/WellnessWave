@@ -36,7 +36,7 @@ const iconSize = width * 0.065;
 
 const MealHistoryRow = ({ food }: MealHistoryRowProps) => {
 	return (
-		<View style={styles.dailyHistoryDetailClassContentRow}>
+		<View style={styles.dailyHistoryDetailClassContentRow} testID="meal-history-row">
 			<View style={styles.dailyHistoryDetailClassContentIcon}>
 				<FoodIconComponent activity={food} iconSize={iconSize} />
 			</View>
