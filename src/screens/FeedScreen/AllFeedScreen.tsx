@@ -44,6 +44,10 @@ const AllFeedScreen = ({}) => {
 						Authorization: `${userToken}`,
 					},
 				});
+				if (!response.ok) {
+					console.error("Server responded with status", response.status);
+					return;
+				}
 				const jsonData = await response.json();
 				const data = jsonData.posts.map((post: any) => {
 					return {
