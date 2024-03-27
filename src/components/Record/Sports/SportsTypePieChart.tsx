@@ -1,25 +1,19 @@
 import { View, Text, StyleSheet, Dimensions } from "react-native";
-import { VictoryPie, VictoryLabel, VictoryTheme } from "victory-native";
+import { VictoryPie, VictoryLabel } from "victory-native";
 import { height } from "../../../constants/Layout";
 import Font from "../../../constants/Font";
 import FontSize from "../../../constants/FontSize";
 
 const { width } = Dimensions.get("window");
-const data = [
-	{ x: "Biking", y: 35 },
-	{ x: "Running", y: 40 },
-	{ x: "Pilates", y: 55 },
-	{ x: "Yoga", y: 120 },
-	{ x: "Swimming", y: 88 },
-	{ x: "Dancing", y: 50 },
-	{ x: "Others", y: 100 },
-];
 
 interface SportsTypePieChartProps {
 	data: { x: string; y: number }[];
 }
 
 const SportsTypePieChart = ({ data }: SportsTypePieChartProps) => {
+	const sum = data.reduce((acc, curr) => acc + curr.y, 0);
+	const hours = Math.floor(sum / 60);
+	const minutes = sum % 60;
 	return (
 		<View>
 			<VictoryPie
@@ -43,7 +37,9 @@ const SportsTypePieChart = ({ data }: SportsTypePieChartProps) => {
 			/>
 			<View style={styles.labelContainer}>
 				<Text style={[styles.labelText, styles.labelText1]}>Total</Text>
-				<Text style={[styles.labelText, styles.labelText2]}>7h 12min</Text>
+				<Text style={[styles.labelText, styles.labelText2]}>
+					{hours > 0 ? `${hours}h` : ""} {minutes}min
+				</Text>
 			</View>
 		</View>
 	);

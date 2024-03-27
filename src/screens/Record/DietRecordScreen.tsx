@@ -14,10 +14,17 @@ import SelectRow from "../../components/Record/RecordCart/SelectRow";
 import DeleteRow from "../../components/Record/RecordCart/DeleteRow";
 import BottomContainer from "../../components/Record/RecordCart/BottomContainer";
 import DatePickerHeader from "../../components/Record/DatePickerHeader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Props = NativeStackScreenProps<RecordStackParamList, "DietRecord">;
 
 const categories = ["Common", "Fruits", "Drinks"];
+
+const getUserInfo = async () => {
+	const userToken = await AsyncStorage.getItem("userToken");
+	const username = await AsyncStorage.getItem("username");
+	return { userToken, username };
+};
 
 const DietRecordScreen = ({ navigation, route }: Props) => {
 	const { date, type } = route.params;
@@ -26,8 +33,33 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 	const [menu, setMenu] = useState(foodCategories["common"]);
 	const [cartShown, setCartShown] = useState(false);
 
-	const sendHandler = () => {
-		navigation.navigate("Diet");
+	const sendHandler = async () => {
+		const { userToken, username } = await getUserInfo();
+
+		try {
+			const response = await fetch(`http://127.0.0.1:8000/post_user_diet/`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `${userToken}`,
+				},
+				body: JSON.stringify({
+					log_date: date,
+					username: username,
+					diets: {
+						[type.toLowerCase()]: selectedItems,
+					},
+				}),
+			});
+
+			if (response.ok) {
+				navigation.goBack();
+			} else {
+				console.error("Failed to post data");
+			}
+		} catch (error) {
+			console.error("Network error:", error);
+		}
 	};
 
 	useEffect(() => {
@@ -57,7 +89,7 @@ const DietRecordScreen = ({ navigation, route }: Props) => {
 	return (
 		<SafeAreaView style={{ flex: 1, marginBottom: -34 }}>
 			<DatePickerHeader
-				title={`${format(parseISO(date), "MMM d, yyyy")} - ${type}`}
+				title={`${date.split("T")[0]} - ${type}`}
 				backHandler={() => navigation.goBack()}
 			></DatePickerHeader>
 			<View>

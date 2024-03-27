@@ -4,9 +4,13 @@ import Colors from "../../../constants/Colors";
 import FontSize from "../../../constants/FontSize";
 import Font from "../../../constants/Font";
 import DailyHistoryClass from "./DailyHistoryClass";
+import FoodIconComponent from "../../../constants/FoodIcons";
+import SportsIconComponent from "../../../constants/SportsIcons";
 
 interface DailyHistoryRecordProps {
 	date: string;
+	diet: string[];
+	sports: string[];
 }
 
 const styles = StyleSheet.create({
@@ -35,13 +39,17 @@ const styles = StyleSheet.create({
 	},
 });
 
-const DailyHistoryRecord = ({ date }: DailyHistoryRecordProps) => {
+const DailyHistoryRecord = ({ date, diet, sports }: DailyHistoryRecordProps) => {
 	return (
 		<View style={styles.dailyHistoryContainer}>
 			<Text style={styles.dailyHistoryTitle}>{date}</Text>
 			<View style={styles.dailyHistoryDetailContainer}>
-				<DailyHistoryClass type="Diet" />
-				<DailyHistoryClass type="Sports" />
+				{diet.length > 0 && (
+					<DailyHistoryClass type="Diet" data={diet} IconComponent={FoodIconComponent} />
+				)}
+				{sports.length > 0 && (
+					<DailyHistoryClass type="Sports" data={sports} IconComponent={SportsIconComponent} />
+				)}
 			</View>
 		</View>
 	);
