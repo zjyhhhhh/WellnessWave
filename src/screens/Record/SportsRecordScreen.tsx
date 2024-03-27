@@ -17,6 +17,7 @@ import SportsDurationModal from "../../components/Record/RecordCart/SportsDurati
 import SelectRow from "../../components/Record/RecordCart/SelectRow";
 import DeleteRow from "../../components/Record/RecordCart/DeleteRow";
 import BottomContainer from "../../components/Record/RecordCart/BottomContainer";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Props = NativeStackScreenProps<RecordStackParamList, "SportsRecord">;
 
@@ -26,6 +27,12 @@ interface SportsRecord {
 	name: string;
 	duration: number;
 }
+
+const getUserInfo = async () => {
+	const userToken = await AsyncStorage.getItem("userToken");
+	const username = await AsyncStorage.getItem("username");
+	return { userToken, username };
+};
 
 const SportsRecordScreen = ({ navigation, route }: Props) => {
 	const [category, setCategory] = useState("Common");
@@ -37,12 +44,42 @@ const SportsRecordScreen = ({ navigation, route }: Props) => {
 
 	const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
+	const [localDate, setLocalDate] = useState<string>("");
+
 	useEffect(() => {
-		console.log(selectedDate);
+		const newLocalDate = new Date(
+			selectedDate.getFullYear(),
+			selectedDate.getMonth(),
+			selectedDate.getDate()
+		);
+		setLocalDate(newLocalDate.toISOString().split(".")[0]);
 	}, [selectedDate]);
 
-	const sendHandler = () => {
-		navigation.navigate("Sports");
+	const sendHandler = async () => {
+		const { userToken, username } = await getUserInfo();
+		console.log(selectedItems);
+		try {
+			const response = await fetch(`http://127.0.0.1:8000/post_user_sport/`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `${userToken}`,
+				},
+				body: JSON.stringify({
+					log_date: localDate,
+					username: username,
+					sports: selectedItems,
+				}),
+			});
+
+			if (response.ok) {
+				navigation.goBack();
+			} else {
+				console.error("Failed to post data");
+			}
+		} catch (error) {
+			console.error("Network error:", error);
+		}
 	};
 
 	useEffect(() => {

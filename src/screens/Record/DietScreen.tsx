@@ -1,11 +1,13 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { View, Text, SafeAreaView, StyleSheet } from "react-native";
+import { View, SafeAreaView, StyleSheet } from "react-native";
 import { RecordStackParamList } from "../../../types";
 import RecordMealButton from "../../components/Record/Diet/RecordMealButton";
 import { height, width } from "../../constants/Layout";
 import MealHistory from "../../components/Record/Diet/MealHistory";
 import DatePickerHeader from "../../components/Record/DatePickerHeader";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 
 type Props = NativeStackScreenProps<RecordStackParamList, "Diet">;
 
@@ -19,37 +21,58 @@ const styles = StyleSheet.create({
 	},
 });
 
-const data = {
-	Breakfast: [
-		{
-			iconName: "Milk",
-		},
-		{
-			iconName: "Sandwich",
-		},
-	],
-	Lunch: [
-		{
-			iconName: "Pizza",
-		},
-		{
-			iconName: "CocaCola",
-		},
-	],
-	Dinner: [],
-	Snack: [],
+const getUserToken = async () => {
+	const userToken = await AsyncStorage.getItem("userToken");
+	return userToken;
 };
 
 const DietScreen = ({ navigation }: Props) => {
-	const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+	const dateNow = new Date();
+	const isFocused = useIsFocused();
+	const [selectedDate, setSelectedDate] = useState<Date>(new Date(dateNow));
+	const [userToken, setUserToken] = useState<string | null>(null);
+	const [diets, setDiets] = useState({
+		breakfast: [],
+		lunch: [],
+		dinner: [],
+		snack: [],
+	});
+	const [localDate, setLocalDate] = useState<string>("");
+
+	getUserToken().then((token) => setUserToken(token));
+
+	const fetchData = async () => {
+		const response = await fetch(`http://127.0.0.1:8000/get_user_diet/${localDate}`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `${userToken}`,
+			},
+		});
+		if (response.ok) {
+			const data = await response.json();
+			setDiets(data.diets);
+			console.log(data.diets);
+		} else {
+			console.log("error");
+		}
+	};
 
 	useEffect(() => {
-		console.log(selectedDate);
-	}, [selectedDate]);
+		const newLocalDate = new Date(
+			selectedDate.getFullYear(),
+			selectedDate.getMonth(),
+			selectedDate.getDate()
+		);
+		setLocalDate(newLocalDate.toISOString().split(".")[0]);
+		if (userToken && isFocused) {
+			fetchData();
+		}
+	}, [selectedDate, userToken, isFocused]);
 
 	const recordHandler = (type: string) => {
 		navigation.navigate("DietRecord", {
-			date: selectedDate.toISOString().slice(0, 10),
+			date: localDate,
 			type: type,
 		});
 	};
@@ -69,10 +92,10 @@ const DietScreen = ({ navigation }: Props) => {
 				<RecordMealButton type="Snack" pressHandler={() => recordHandler("Snack")} />
 			</View>
 			<View>
-				<MealHistory type="Breakfast" data={data.Breakfast} />
-				<MealHistory type="Lunch" data={data.Lunch} />
-				<MealHistory type="Dinner" data={data.Dinner} />
-				<MealHistory type="Snack" data={data.Snack} />
+				<MealHistory type="Breakfast" data={diets.breakfast} />
+				<MealHistory type="Lunch" data={diets.lunch} />
+				<MealHistory type="Dinner" data={diets.dinner} />
+				<MealHistory type="Snack" data={diets.snack} />
 			</View>
 		</SafeAreaView>
 	);

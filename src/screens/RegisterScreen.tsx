@@ -34,7 +34,8 @@ const RegisterScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 			confirmPasswordVerifier(password, confirmPassword)
 		) {
 			const response = await fetch(
-				`${process.env.EXPO_PUBLIC_API_URL}:${process.env.EXPO_PUBLIC_PORT}/users/register`,
+				// `${process.env.EXPO_PUBLIC_API_URL}:${process.env.EXPO_PUBLIC_PORT}/users/register`,
+				`http:3.17.14.65:8000/users/register`,
 				{
 					method: "POST",
 					headers: {

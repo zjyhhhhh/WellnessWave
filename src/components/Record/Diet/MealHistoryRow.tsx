@@ -6,7 +6,7 @@ import Font from "../../../constants/Font";
 import FoodIconComponent from "../../../constants/FoodIcons";
 
 interface MealHistoryRowProps {
-	iconName: string;
+	food: string;
 }
 
 const styles = StyleSheet.create({
@@ -34,13 +34,13 @@ const styles = StyleSheet.create({
 
 const iconSize = width * 0.065;
 
-const MealHistoryRow = ({ iconName }: MealHistoryRowProps) => {
+const MealHistoryRow = ({ food }: MealHistoryRowProps) => {
 	return (
 		<View style={styles.dailyHistoryDetailClassContentRow}>
 			<View style={styles.dailyHistoryDetailClassContentIcon}>
-				<FoodIconComponent activity={iconName} iconSize={iconSize} />
+				<FoodIconComponent activity={food} iconSize={iconSize} />
 			</View>
-			<Text style={styles.dailyHistoryDetailClassContentText}>{iconName}</Text>
+			<Text style={styles.dailyHistoryDetailClassContentText}>{food}</Text>
 		</View>
 	);
 };

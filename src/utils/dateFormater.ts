@@ -9,6 +9,30 @@ export const formatDateToShortMonthDay = (dateString: string) => {
 	return formattedDate;
 }
 
+export const formatDateToRelativeDay = (dateString: string) => {
+	const [year, month, day] = dateString.split("-");
+	const date = new Date(+year, +month - 1, +day);
+	const today = new Date();
+  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const yesterday = new Date(todayDate);
+	yesterday.setDate(yesterday.getDate() - 1);
+
+	if (date.getTime() === todayDate.getTime()) {
+		return "Today";
+	} else if (date.getTime() === yesterday.getTime()) {
+		return "Yesterday";
+	}
+
+	return formatDateToShortMonthDay(dateString);
+}
+
+export const formatDateToYYYYMMDD = (date: Date) => {
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, "0");
+	const day = String(date.getDate()).padStart(2, "0");
+	return [year, month, day].join("-");	
+}
+
 export const generateDateRange = (startDate: Date, endDate: Date) => {
 	const dates = [];
 	let currentDate = new Date(startDate);
