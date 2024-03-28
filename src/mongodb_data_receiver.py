@@ -1,10 +1,11 @@
+import base64
 from datetime import datetime
 import os
 from bson import ObjectId
 from fastapi import FastAPI, Body, Form, HTTPException, Request, status, Query
 from dotenv import load_dotenv
 import motor.motor_asyncio
-from models import AddCommentModel, PostContentModel, PostModel, UserModel, DietModel, SportsModel
+from models import CommentModel, PostContentModel, PostModel, UserModel, DietModel, SportsModel, UserProfileModel, UserInformationModel
 from passlib.context import CryptContext
 from pydantic import ConfigDict, BaseModel, Field, EmailStr
 import jwt
@@ -48,6 +49,7 @@ userCollections = db.get_collection("users")
 postCollections = db.get_collection("posts")
 dietCollections = db.get_collection("diets")
 sportCollections = db.get_collection("sports")
+userProfileCollections = db.get_collection("user_profiles")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -92,9 +94,27 @@ async def create_user(user: UserModel = Body(...)):
     new_user = await userCollections.insert_one(user.model_dump(by_alias=True))
     created_user = await userCollections.find_one({"_id": new_user.inserted_id})
 
-    if created_user:
-        del created_user["password"]
-    return created_user
+    def encode_avatar_base64(image_path):
+        with open(image_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read())
+        return encoded_string
+
+    # new user profile and user infomation model
+    user_info = UserInformationModel(
+        username=created_user["_id"],
+        # generate a random default nickname 6 char for the user accroding to current time
+        nickname="User" + str(int(datetime.now().timestamp()))[-6:],
+        avatar=encode_avatar_base64("assets/images/default_avatar.jpg"),
+    )
+    user_profile = UserProfileModel(
+        username=created_user["_id"],
+        userInfo=user_info
+    )
+    new_user_profile = await userProfileCollections.insert_one(
+        user_profile.model_dump(by_alias=True)
+    )
+
+    return new_user_profile
 
 
 @app.post(
@@ -113,18 +133,24 @@ async def login(email: EmailStr = Body(...), password: str = Body(...)):
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password")
 
     token = create_access_token({"sub": user_dict["_id"]})
-    return {"access_token": token, "token_type": "bearer"}
+
+    # get user profile
+    user_profile = await userProfileCollections.find_one(
+        {"_id": user_dict["_id"]})
+
+    return {"access_token": token, "token_type": "bearer", "username": user_dict["_id"],
+            "nickname": user_profile["userInfo"]["nickname"], "avatar": user_profile["userInfo"]["avatar"]}
 
 # post a new post
 
 
 @app.post("/send_posts/", status_code=status.HTTP_201_CREATED)
-async def create_post(request: Request, postContent: PostContentModel = Body(...)):
-    username = getattr(request.state, 'username', None)
-    post = PostModel(postContent=postContent, author=username)
+async def create_post(request: Request, postContent: PostModel = Body(...)):
     try:
-        created_post = await postCollections.insert_one(post.model_dump(by_alias=True))
-        # post.upload_imgageList_to_s3()
+        post = postContent.model_dump(by_alias=True)
+        created_post = await postCollections.insert_one(post)
+        await userProfileCollections.update_one(
+            {"_id": post["author"]}, {"$push": {"postList": str(created_post.inserted_id)}})
         return {"post_id": str(created_post.inserted_id)}
     except Exception as e:
         raise HTTPException(
@@ -154,11 +180,15 @@ async def create_post(request: Request, postContent: PostContentModel = Body(...
 
 @app.get("/get_posts/", response_model_by_alias=True)
 async def get_posts(request: Request):
+    username = getattr(request.state, 'username', None)
+    user = await userProfileCollections.find_one(
+        {"_id": username}, {"followingList": 1}
+    )
     cursor = postCollections.find().sort("postDate", -1)
-    posts = await cursor.to_list(length=5)
+    posts = await cursor.to_list(length=3)
     for post in posts:
         post["_id"] = str(post["_id"])
-
+        post["followed"] = post["author"] in user.get("followingList", [])
     return {
         "posts": posts
     }
@@ -177,19 +207,16 @@ async def get_post(postId: str):
 
 
 @app.post("/add_comment/{postId}", status_code=status.HTTP_201_CREATED)
-async def add_comment(request: Request, postId: str, comment: str = Form(...)):
+async def add_comment(request: Request, postId: str, comment: CommentModel = Body(...)):
     username = getattr(request.state, 'username', None)
     post = await postCollections.find_one({"_id": ObjectId(postId)})
     if not post:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
-    comment = {
-        "author": username,
-        "contentText": comment,
-        "postDate": datetime.now()
-    }
+    # await postCollections.update_one(
+    #     {"_id": ObjectId(postId)}, {"$push": {"commentList": comment}})
     await postCollections.update_one(
-        {"_id": ObjectId(postId)}, {"$push": {"commentList": comment}})
+        {"_id": ObjectId(postId)}, {"$push": {"commentList": comment.model_dump(by_alias=True)}})
     return {"message": "Comment posted successfully."}
 
 
@@ -207,18 +234,22 @@ async def get_comments(postId: str):
 @app.post("/update_posts/like_dislike/{postId}")
 async def update_post_likes_dislikes(request: Request, postId: str, like: bool = Body(...), dislike: bool = Body(...)):
     username = getattr(request.state, 'username', None)
-    print(like, dislike)
-
     update_operations = {}
 
     if like:
         update_operations["$addToSet"] = {"likes": username}
         update_operations["$pull"] = {"dislikes": username}
+        # add user likelist
+        await userProfileCollections.update_one({"_id": username}, {"$addToSet": {"likeList": postId}})
     elif dislike:
         update_operations["$addToSet"] = {"dislikes": username}
         update_operations["$pull"] = {"likes": username}
+        # remove user likelist
+        await userProfileCollections.update_one({"_id": username}, {"$pull": {"likeList": postId}})
     elif not like and not dislike:
         update_operations["$pull"] = {"likes": username, "dislikes": username}
+        # remove user likelist
+        await userProfileCollections.update_one({"_id": username}, {"$pull": {"likeList": postId}})
 
     if not update_operations:
         raise HTTPException(status_code=400, detail="Invalid reaction")
@@ -233,30 +264,21 @@ async def update_post_likes_dislikes(request: Request, postId: str, like: bool =
     return {"message": "Post reaction updated successfully"}
 
 
-@app.post("/follow/{userId}", status_code=status.HTTP_201_CREATED)
-async def follow(request: Request, userId: str):
-    follower = getattr(request.state, 'username', None)
-    user = await userCollections.find_one({"_id": userId})
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    await userCollections.update_one({"_id": userId}, {"$push": {"followerList": follower}})
-    await userCollections.update_one({"_id": follower}, {"$push": {"followingList": userId}})
-    return {"message": "User followed successfully."}
+@app.post("/follow_unfollow/{userId}/{follow}")
+async def follow(request: Request, userId: str, follow: bool):
+    username = getattr(request.state, 'username', None)
+    if follow:
+        await userProfileCollections.update_one(
+            {"_id": username}, {"$addToSet": {"followingList": userId}})
+        await userProfileCollections.update_one(
+            {"_id": userId}, {"$addToSet": {"followerList": username}})
+    else:
+        await userProfileCollections.update_one(
+            {"_id": username}, {"$pull": {"followingList": userId}})
+        await userProfileCollections.update_one(
+            {"_id": userId}, {"$pull": {"followerList": username}})
 
-# unfollow
-
-
-@app.post("/unfollow/{userId}", status_code=status.HTTP_201_CREATED)
-async def unfollow(request: Request, userId: str):
-    follower = getattr(request.state, 'username', None)
-    user = await userCollections.find_one({"_id": userId})
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    await userCollections.update_one({"_id": userId}, {"$pull": {"followerList": follower}})
-    await userCollections.update_one({"_id": follower}, {"$pull": {"followingList": userId}})
-    return {"message": "User unfollowed successfully."}
+    return {"message": "Follow status updated successfully."}
 
 # get focus posts
 

@@ -96,8 +96,8 @@ class CommentModel(BaseModel):
     Container for a single comment.
     """
     contentText: str = Field(...)
-    auther: PyObjectId = Field(...)
-    autherInfo: UserInformationModel = Field(default=None)
+    author: PyObjectId = Field(...)
+    authorInfo: UserInformationModel = Field(default=None)
     postDate: datetime = Field(default_factory=datetime.now)
     model_config = ConfigDict(
         populate_by_name=True,
@@ -140,7 +140,7 @@ class PostModel(BaseModel):
 
     postContent: PostContentModel = Field(...)
     author: PyObjectId = Field(...)
-    authorInfo: UserInformationModel = Field(default=None)
+    authorInfo: UserInformationModel = Field(...)
     postDate: datetime = Field(default_factory=datetime.now)
     commentList: List[CommentModel] = Field(default=[])
     # likeCount: int = Field(default=0)
@@ -182,13 +182,13 @@ class UserProfileModel(BaseModel):
     """
     Container for a single user's profile.
     """
-    username: PyObjectId = Field
+    username: PyObjectId = Field(alias="_id")
     userInfo: UserInformationModel = Field
     introduction: str = Field(default=None)
     sex: str = Field(default=None)
     age: int = Field(default=None)
-    postList: List[PostModel] = Field(default=[])
-    likeList: List[PostModel] = Field(default=[])
+    postList: List[str] = Field(default=[])
+    likeList: List[str] = Field(default=[])
     followingList: List[UserInformationModel] = Field(default=[])
     followerList: List[UserInformationModel] = Field(default=[])
     model_config = ConfigDict(
@@ -251,7 +251,3 @@ class SportsModel(BaseModel):
                 "sports": [{"name": "swimming", "duration": 30}]
             }
         }
-
-
-class AddCommentModel(BaseModel):
-    comment: str = Field(...)
