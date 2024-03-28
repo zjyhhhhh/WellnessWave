@@ -74,6 +74,7 @@ const AllFeedScreen = ({}) => {
 		};
 		if (isFocused) {
 			fetchPosts();
+			console.log("fetching posts");
 		}
 	}, [isFocused]);
 	return (

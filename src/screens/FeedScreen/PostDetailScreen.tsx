@@ -67,16 +67,13 @@ const PostDetailScreen = ({ navigation, route }: Props) => {
 		const fetchComments = async () => {
 			const { userToken, username } = await getUserInfo();
 			try {
-				const response = await fetch(
-					`http://127.0.0.1:8000/get_comments/${data.postId}/${!followed}`,
-					{
-						method: "GET",
-						headers: {
-							"Content-Type": "application/json",
-							Authorization: `${userToken}`,
-						},
-					}
-				);
+				const response = await fetch(`http://127.0.0.1:8000/get_comments/${data.postId}`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `${userToken}`,
+					},
+				});
 				const jsonData = await response.json();
 				setComments(jsonData);
 			} catch (error) {
@@ -91,11 +88,18 @@ const PostDetailScreen = ({ navigation, route }: Props) => {
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
 			<View style={StyleContainer.Headers}>
-				<TouchableOpacity style={StyleContainer.backButton} onPress={navigation.goBack}>
+				<TouchableOpacity
+					style={StyleContainer.backButton}
+					onPress={() => {
+						navigation.goBack();
+					}}
+				>
 					<AntDesign name="left" size={24} color="black" />
 				</TouchableOpacity>
 				<Image
-					source={{ uri: `data:image/jpeg;base64,${data.postPersonImage}` }}
+					source={{
+						uri: data.postPersonImage,
+					}}
 					style={StyleContainer.portraitStyle}
 				/>
 				<Text style={StyleContainer.posterNameStyle}>{data.postAuthorName}</Text>
@@ -111,10 +115,7 @@ const PostDetailScreen = ({ navigation, route }: Props) => {
 			</View>
 			<ScrollView style={{ backgroundColor: Colors.background }}>
 				<View style={StyleContainer.imageStyle}>
-					<Image
-						source={{ uri: `data:image/jpeg;base64,${data.postImage}` }}
-						style={{ width: "100%", height: 430 }}
-					/>
+					<Image source={{ uri: data.postImage }} style={{ width: "100%", height: 430 }} />
 				</View>
 				<View style={{ paddingHorizontal: 5, paddingVertical: 10 }}>
 					<Text style={{ fontSize: FontSize.small }}> {data.postText}</Text>

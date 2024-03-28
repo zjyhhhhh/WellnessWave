@@ -13,7 +13,12 @@ type CommentProps = {
 const SingleCommentDisplay: React.FC<CommentProps> = ({ username, avatar, text, date }) => {
 	return (
 		<View style={styles.container}>
-			<Image source={{ uri: `data:image/jpeg;base64,${avatar}` }} style={styles.avatar} />
+			<Image
+				source={{
+					uri: avatar,
+				}}
+				style={styles.avatar}
+			/>
 			<View style={styles.content}>
 				<Text style={styles.username}>{username}</Text>
 				<Text style={styles.text}>{text}</Text>

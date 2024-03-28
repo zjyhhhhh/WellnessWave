@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import ThumbsButton from "../ThumbsButton";
@@ -32,6 +32,14 @@ const PostCard = ({ data, navigation }: PostCardProps) => {
 	const [dislikes, setDislikes] = useState(data.dislikes); // number of dislikes
 	const [followed, setFollowed] = useState(data.followed);
 
+	useEffect(() => {
+		setLike(data.isLiked);
+		setDislike(data.isDisliked);
+		setLikes(data.likes);
+		setDislikes(data.dislikes);
+		setFollowed(data.followed);
+	}, [data]);
+
 	const navigateToPostDetail = () => {
 		navigation.navigate("PostDetailScreen", {
 			data: {
@@ -55,7 +63,7 @@ const PostCard = ({ data, navigation }: PostCardProps) => {
 					Authorization: `${userToken}`,
 				},
 			});
-			console.log(followed);
+			// console.log(followed);
 			setFollowed(!followed);
 		} catch (error) {
 			console.error("Error following user:", error);
@@ -74,7 +82,7 @@ const PostCard = ({ data, navigation }: PostCardProps) => {
 						{/* portion of displying the person's portrait */}
 						<Image
 							source={{
-								uri: `data:image/jpeg;base64,${data.postPersonImage}`,
+								uri: data.postPersonImage,
 							}}
 							style={AllFeedScreenStyle.userPortraitImage}
 						/>
@@ -99,7 +107,7 @@ const PostCard = ({ data, navigation }: PostCardProps) => {
 
 				<View style={AllFeedScreenStyle.postedImageView}>
 					<Image
-						source={{ uri: `data:image/jpeg;base64,${data.postImage}` }}
+						source={{ uri: data.postImage }}
 						style={AllFeedScreenStyle.postedImageLayout}
 						testID={`postImage`}
 					/>
