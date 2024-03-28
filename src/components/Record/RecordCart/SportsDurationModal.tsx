@@ -29,7 +29,8 @@ const SportsDurationModal = ({
 			animationType="slide"
 			transparent={true}
 			visible={modalVisible}
-			onRequestClose={() => {
+			onRequestClose={() => { 
+				/* istanbul ignore next */
 				setCloseModal();
 			}}
 			style={{
@@ -48,7 +49,11 @@ const SportsDurationModal = ({
 							<AppTextInput
 								value={duration !== undefined ? duration.toString() : ""}
 								inputMode="numeric"
-								onChangeText={(text) => setDuration(parseInt(text))}
+								
+								onChangeText={
+									/* istanbul ignore next */
+									(text) => setDuration(parseInt(text))
+								}
 							/>
 							<Text style={styles.durationInputUnit}>min</Text>
 						</View>

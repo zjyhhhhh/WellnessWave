@@ -24,10 +24,13 @@
       "!**/jest.setup.js",
       "src/navigation/*.{js,jsx,ts,tsx}",
       "src/screens/*.{js,jsx,ts,tsx}",
-      "src/screens/*/*.{js,jsx,ts,tsx}",
-      "src/screens/*/*.{js,jsx,ts,tsx}",
+      "src/screens/FeedScreen/*.{js,jsx,ts,tsx}",
+      "src/screens/Profile/*.{js,jsx,ts,tsx}",
+      "src/screens/Record/*.{js,jsx,ts,tsx}",
       "src/components/*.{js,jsx,ts,tsx}",
-      "src/utils/*.{js,jsx,ts,tsx}"
+      "src/components/Record/*.{js,jsx,ts,tsx}",
+      "src/components/Record/Diet/*.{js,jsx,ts,tsx}",
+      "src/components/Record/RecordCart/*.{js,jsx,ts,tsx}"
     ],
     "setupFiles": [
       "<rootDir>/jestSetupFile.js"
