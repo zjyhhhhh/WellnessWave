@@ -9,6 +9,8 @@ import Font from "../../constants/Font";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import MyPostsScreen from "./MyPostsScreen";
 import LikedPostsScreen from "./LikedPostsScreen";
+import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Props = NativeStackScreenProps<ProfileStackParamList, "Main">;
 
@@ -116,11 +118,29 @@ const styles = StyleSheet.create({
 	},
 });
 
-const avatarPath = require("../../assets/images/avatar.jpg");
-const userNickname = "Yahh";
-const userName = "123456abc";
-
 const MainScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
+	const [avatar, setAvatar] = useState<string>("");
+	const [userNickname, setUserNickname] = useState<string>("");
+	const [userName, setUserName] = useState<string>("");
+
+	useEffect(() => {
+		const getUser = async () => {
+			const username = await AsyncStorage.getItem("username");
+			const nickname = await AsyncStorage.getItem("nickname");
+			const avatar = await AsyncStorage.getItem("avatarLocal");
+			return { avatar, nickname, username };
+		};
+		const fetchUser = async () => {
+			const user = await getUser();
+			if (!user || !user.avatar || !user.nickname || !user.username) {
+				return;
+			}
+			setAvatar(user.avatar);
+			setUserNickname(user.nickname);
+			setUserName(user.username);
+		};
+		fetchUser();
+	}, []);
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
 			<View style={styles.container}>
@@ -137,7 +157,8 @@ const MainScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 				</View>
 				<View style={styles.userContainer}>
 					<View style={styles.avatarContainer}>
-						<Image source={avatarPath} style={styles.avatar} />
+						{/* <Image source={{ uri: avatar }} style={styles.avatar} /> */}
+						<Image source={{ uri: `data:image/jpeg;base64,${avatar}` }} style={styles.avatar} />
 					</View>
 					<View style={styles.userInfoContainer}>
 						<View style={styles.userNicknameContainer}>
@@ -154,23 +175,24 @@ const MainScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 				<View style={styles.profileActionsContainer}>
 					<View style={styles.userStatsContainer}>
 						<TouchableOpacity
-							style = {styles.connectContainer}
+							style={styles.connectContainer}
 							onPress={() => navigate("FocusUsers")}
 						>
 							<Text style={styles.connectText}>Focus</Text>
 							<Text style={styles.connectText}>20</Text>
-						</TouchableOpacity>	
-						<TouchableOpacity
-							style = {styles.connectContainer}
-							onPress={() => navigate("FansUsers")}
-						>
+						</TouchableOpacity>
+						<TouchableOpacity style={styles.connectContainer} onPress={() => navigate("FansUsers")}>
 							<Text style={styles.connectText}>Fans</Text>
 							<Text style={styles.connectText}>15</Text>
-						</TouchableOpacity>	
+						</TouchableOpacity>
 					</View>
 					<View style={styles.profileActionButtonsContainer}>
-						<TouchableOpacity style={styles.profileEditButton} 
-						onPress={() => {navigate("Edit");}}>
+						<TouchableOpacity
+							style={styles.profileEditButton}
+							onPress={() => {
+								navigate("Edit");
+							}}
+						>
 							<Text style={styles.profileEditButtonText}>Edit Profile</Text>
 						</TouchableOpacity>
 
