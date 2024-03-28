@@ -11,9 +11,10 @@ load_dotenv()
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 S3_BUCKET_NAME = os.getenv('S3_BUCKET_NAME')
-S3_REGION=os.getenv('S3_REGION')
+S3_REGION = os.getenv('S3_REGION')
 
 print(S3_REGION)
+
 
 class ImageHandler:
 
@@ -31,18 +32,17 @@ class ImageHandler:
 
         try:
             presigned_url = self.s3_client.generate_presigned_url('get_object',
-                                                    Params={'Bucket': bucket_name,
-                                                            'Key': image_key},
-                                                    ExpiresIn=3600)  # URL expires in 1 hour
-          
+                                                                  Params={'Bucket': bucket_name,
+                                                                          'Key': image_key},
+                                                                  ExpiresIn=3600)  # URL expires in 1 hour
+
         except NoCredentialsError:
             print("Credentials not available")
         except Exception as e:
             print(f"Failed to download image: {str(e)}")
-        
+
         return presigned_url
-    
-    
+
     def decode_save_img_to_s3(self, encoded_image, bucket_name, object_name):
 
         im = Image.open(BytesIO(base64.b64decode(encoded_image)))
@@ -51,9 +51,24 @@ class ImageHandler:
         img_byte_arr = img_byte_arr.getvalue()
 
         try:
-            self.s3_client.put_object(Body=img_byte_arr, Bucket=bucket_name, Key=object_name)
+            self.s3_client.put_object(
+                Body=img_byte_arr, Bucket=bucket_name, Key=object_name)
             return True
         except NoCredentialsError:
             print("Credentials not available")
             return False
-    
+
+
+if __name__ == '__main__':
+    image_handler = ImageHandler()
+    url = image_handler.fetch_image_url_from_s3(
+        S3_BUCKET_NAME, 'test1.jpg')
+    print(url)
+
+    # def encode_avatar_base64(image_path):
+    #     with open(image_path, "rb") as image_file:
+    #         encoded_string = base64.b64encode(image_file.read())
+    #     return encoded_string
+    # file = encode_avatar_base64("./assets/images/default_avatar.jpg")
+    # image_handler.decode_save_img_to_s3(
+    #     file, S3_BUCKET_NAME, 'test1.jpg')

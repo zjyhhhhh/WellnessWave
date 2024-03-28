@@ -5,12 +5,15 @@ from bson import ObjectId
 from fastapi import FastAPI, Body, Form, HTTPException, Request, status, Query
 from dotenv import load_dotenv
 import motor.motor_asyncio
+from image_handler import ImageHandler
 from models import CommentModel, PostContentModel, PostModel, UserModel, DietModel, SportsModel, UserProfileModel, UserInformationModel
 from passlib.context import CryptContext
 from pydantic import ConfigDict, BaseModel, Field, EmailStr
 import jwt
 
 load_dotenv()
+
+imageHanlder = ImageHandler()
 
 
 def create_access_token(data: dict):
@@ -94,27 +97,25 @@ async def create_user(user: UserModel = Body(...)):
     new_user = await userCollections.insert_one(user.model_dump(by_alias=True))
     created_user = await userCollections.find_one({"_id": new_user.inserted_id})
 
-    def encode_avatar_base64(image_path):
-        with open(image_path, "rb") as image_file:
-            encoded_string = base64.b64encode(image_file.read())
-        return encoded_string
+    # def encode_avatar_base64(image_path):
+    #     with open(image_path, "rb") as image_file:
+    #         encoded_string = base64.b64encode(image_file.read())
+    #     return encoded_string
 
     # new user profile and user infomation model
     user_info = UserInformationModel(
         username=created_user["_id"],
-        # generate a random default nickname 6 char for the user accroding to current time
         nickname="User" + str(int(datetime.now().timestamp()))[-6:],
-        avatar=encode_avatar_base64("assets/images/default_avatar.jpg"),
+        # avatar=encode_avatar_base64("assets/images/default_avatar.jpg"),
+        avatar="user_avatars/default_avatar.jpg"
     )
     user_profile = UserProfileModel(
         username=created_user["_id"],
         userInfo=user_info
     )
-    new_user_profile = await userProfileCollections.insert_one(
+    await userProfileCollections.insert_one(
         user_profile.model_dump(by_alias=True)
     )
-
-    return new_user_profile
 
 
 @app.post(
@@ -147,8 +148,16 @@ async def login(email: EmailStr = Body(...), password: str = Body(...)):
 @app.post("/send_posts/", status_code=status.HTTP_201_CREATED)
 async def create_post(request: Request, postContent: PostModel = Body(...)):
     try:
+        # save in aws and store the path in the post
+        username = getattr(request.state, 'username', None)
         post = postContent.model_dump(by_alias=True)
+        aws_path = f"post_images/{str(datetime.now())}/image1.jpg"
+        imageHanlder.decode_save_img_to_s3(
+            post["postContent"]["contextImage"][0], "wellnesswave-storage", aws_path)
+        post["postContent"]["contextImage"][0] = aws_path
+
         created_post = await postCollections.insert_one(post)
+
         await userProfileCollections.update_one(
             {"_id": post["author"]}, {"$push": {"postList": str(created_post.inserted_id)}})
         return {"post_id": str(created_post.inserted_id)}
@@ -185,10 +194,14 @@ async def get_posts(request: Request):
         {"_id": username}, {"followingList": 1}
     )
     cursor = postCollections.find().sort("postDate", -1)
-    posts = await cursor.to_list(length=3)
+    posts = await cursor.to_list(length=10)
     for post in posts:
         post["_id"] = str(post["_id"])
         post["followed"] = post["author"] in user.get("followingList", [])
+        post["postContent"]["contextImage"][0] = imageHanlder.fetch_image_url_from_s3(
+            "wellnesswave-storage", post["postContent"]["contextImage"][0])
+        post["authorInfo"]["avatar"] = imageHanlder.fetch_image_url_from_s3(
+            "wellnesswave-storage", post["authorInfo"]["avatar"])
     return {
         "posts": posts
     }
@@ -227,6 +240,9 @@ async def get_comments(postId: str):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
     comments = post["commentList"]
+    for comment in comments:
+        comment["authorInfo"]["avatar"] = imageHanlder.fetch_image_url_from_s3(
+            "wellnesswave-storage", comment["authorInfo"]["avatar"])
     print(comments)
     return comments
 
