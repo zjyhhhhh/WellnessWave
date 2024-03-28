@@ -10,8 +10,9 @@ import PostCard from "../../components/FeedScreenComponent/PostCard";
 import { useIsFocused } from "@react-navigation/native";
 
 interface PostData {
-	postTitle: string;
-	postPersonImage: any;
+	postAuthor: string;
+	postAuthorName: string;
+	postPersonImage: string;
 	postImage: any;
 	postText: string;
 	postDate: string;
@@ -20,6 +21,7 @@ interface PostData {
 	dislikes: number;
 	isDisliked: boolean;
 	postId: string;
+	followed: boolean;
 }
 
 const AllFeedScreen = ({}) => {
@@ -52,8 +54,9 @@ const AllFeedScreen = ({}) => {
 				const data = jsonData.posts.map((post: any) => {
 					return {
 						postId: post._id,
-						postTitle: post.author,
-						postPersonImage: require("../../assets/FeedsSample/avatar1.jpg"),
+						postAuthor: post.author,
+						postAuthorName: post.authorInfo.nickname,
+						postPersonImage: post.authorInfo.avatar,
 						postImage: post.postContent.contextImage[0],
 						postText: post.postContent.contextText,
 						postDate: post.postDate,
@@ -61,6 +64,7 @@ const AllFeedScreen = ({}) => {
 						isLiked: post.likes.includes(username) ? true : false,
 						dislikes: post.dislikes.length,
 						isDisliked: post.dislikes.includes(username) ? true : false,
+						followed: post.followed,
 					};
 				});
 				setPostData(data);

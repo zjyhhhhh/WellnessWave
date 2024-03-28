@@ -11,13 +11,33 @@ import { useEffect } from "react";
 import { height } from "../../constants/Layout";
 import { PostDetailScreenStyle as StyleContainer } from "./styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsFocused } from "@react-navigation/native";
 
 type Props = NativeStackScreenProps<MomentStackParamList, "PostDetailScreen">;
 
 const PostDetailScreen = ({ navigation, route }: Props) => {
+	const isFocused = useIsFocused();
 	const { data } = route.params;
 	// const [commentCount, setCommentCount] = useState(1);
 	const [comments, setComments] = useState([]);
+	const [followed, setFollowed] = useState(data.followed);
+
+	const followHandler = async () => {
+		const userToken = await AsyncStorage.getItem("userToken");
+		try {
+			await fetch(`http://127.0.0.1:8000/follow_unfollow/${data.postAuthor}/${!followed}`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `${userToken}`,
+				},
+			});
+			console.log(followed);
+			setFollowed(!followed);
+		} catch (error) {
+			console.error("Error following user:", error);
+		}
+	};
 
 	useEffect(() => {
 		navigation.getParent()?.setOptions({
@@ -47,21 +67,26 @@ const PostDetailScreen = ({ navigation, route }: Props) => {
 		const fetchComments = async () => {
 			const { userToken, username } = await getUserInfo();
 			try {
-				const response = await fetch(`http://127.0.0.1:8000/get_comments/${data.postId}`, {
-					method: "GET",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `${userToken}`,
-					},
-				});
+				const response = await fetch(
+					`http://127.0.0.1:8000/get_comments/${data.postId}/${!followed}`,
+					{
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							Authorization: `${userToken}`,
+						},
+					}
+				);
 				const jsonData = await response.json();
 				setComments(jsonData);
 			} catch (error) {
 				console.error("Error fetching comments:", error);
 			}
 		};
-		fetchComments();
-	}, []);
+		if (isFocused) {
+			fetchComments();
+		}
+	}, [isFocused, data.postId]);
 
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
@@ -69,11 +94,20 @@ const PostDetailScreen = ({ navigation, route }: Props) => {
 				<TouchableOpacity style={StyleContainer.backButton} onPress={navigation.goBack}>
 					<AntDesign name="left" size={24} color="black" />
 				</TouchableOpacity>
-				<Image source={data.postPersonImage} style={StyleContainer.portraitStyle} />
-				<Text style={StyleContainer.posterNameStyle}>{data.postTitle}</Text>
-				<TouchableOpacity style={StyleContainer.followButtonStyle}>
-					<Text style={StyleContainer.followButtonTextStyle}>Follow</Text>
-				</TouchableOpacity>
+				<Image
+					source={{ uri: `data:image/jpeg;base64,${data.postPersonImage}` }}
+					style={StyleContainer.portraitStyle}
+				/>
+				<Text style={StyleContainer.posterNameStyle}>{data.postAuthorName}</Text>
+				{!followed ? (
+					<TouchableOpacity style={StyleContainer.followButtonStyle} onPress={followHandler}>
+						<Text style={StyleContainer.followButtonTextStyle}>Follow</Text>
+					</TouchableOpacity>
+				) : (
+					<TouchableOpacity style={StyleContainer.unfollowButtonStyle} onPress={followHandler}>
+						<Text style={StyleContainer.unfollowButtonTextStyle}>Unfollow</Text>
+					</TouchableOpacity>
+				)}
 			</View>
 			<ScrollView style={{ backgroundColor: Colors.background }}>
 				<View style={StyleContainer.imageStyle}>
@@ -92,8 +126,8 @@ const PostDetailScreen = ({ navigation, route }: Props) => {
 						<Text style={StyleContainer.commentCountStyle}> All {comments?.length} Comments</Text>
 						{comments.map((comment: any, index) => (
 							<SingleCommentDisplay
-								username={comment.author}
-								avatar="../../assets/FeedsSample/avatar2.jpg"
+								username={comment.authorInfo.nickname}
+								avatar={comment.authorInfo.avatar}
 								text={comment.contentText}
 								date={comment.postDate.slice(0, 10)}
 								key={index}

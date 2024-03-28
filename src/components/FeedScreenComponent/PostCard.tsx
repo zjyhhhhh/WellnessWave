@@ -1,14 +1,15 @@
-// PostItem.js 或 PostItem.tsx 如果你使用TypeScript
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import ThumbsButton from "../ThumbsButton";
 import Colors from "../../constants/Colors";
 import { AllFeedScreenStyle } from "../../screens/FeedScreen/styles";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface PostData {
-	postTitle: string;
-	postPersonImage: any;
+	postAuthor: string;
+	postAuthorName: string;
+	postPersonImage: string;
 	postImage: any;
 	postText: string;
 	postDate: string;
@@ -17,6 +18,7 @@ interface PostData {
 	dislikes: number;
 	isDisliked: boolean;
 	postId: string;
+	followed: boolean;
 }
 
 interface PostCardProps {
@@ -28,6 +30,7 @@ const PostCard = ({ data, navigation }: PostCardProps) => {
 	const [dislike, setDislike] = useState(data.isDisliked);
 	const [likes, setLikes] = useState(data.likes); // number of likes
 	const [dislikes, setDislikes] = useState(data.dislikes); // number of dislikes
+	const [followed, setFollowed] = useState(data.followed);
 
 	const navigateToPostDetail = () => {
 		navigation.navigate("PostDetailScreen", {
@@ -37,8 +40,26 @@ const PostCard = ({ data, navigation }: PostCardProps) => {
 				dislikes: dislikes,
 				isLiked: like,
 				isDisliked: dislike,
+				followed: followed,
 			},
 		});
+	};
+
+	const followHandler = async () => {
+		const userToken = await AsyncStorage.getItem("userToken");
+		try {
+			await fetch(`http://127.0.0.1:8000/follow_unfollow/${data.postAuthor}/${!followed}`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `${userToken}`,
+				},
+			});
+			console.log(followed);
+			setFollowed(!followed);
+		} catch (error) {
+			console.error("Error following user:", error);
+		}
 	};
 
 	return (
@@ -51,15 +72,29 @@ const PostCard = ({ data, navigation }: PostCardProps) => {
 				<View style={AllFeedScreenStyle.topHeader}>
 					<View style={{ flexDirection: "row", alignItems: "center" }}>
 						{/* portion of displying the person's portrait */}
-						<Image source={data.postPersonImage} style={AllFeedScreenStyle.userPortraitImage} />
+						<Image
+							source={{
+								uri: `data:image/jpeg;base64,${data.postPersonImage}`,
+							}}
+							style={AllFeedScreenStyle.userPortraitImage}
+						/>
 						{/* portion of displying the person's name*/}
 						<View style={{ paddingLeft: 10 }}>
-							<Text style={AllFeedScreenStyle.usersNameStyle}>{data.postTitle}</Text>
+							<Text style={AllFeedScreenStyle.usersNameStyle}>{data.postAuthorName}</Text>
 						</View>
 					</View>
-					<TouchableOpacity style={AllFeedScreenStyle.followButton}>
+					{/* <TouchableOpacity style={AllFeedScreenStyle.followButton}>
 						<Text style={AllFeedScreenStyle.followButtonText}>Follow</Text>
-					</TouchableOpacity>
+					</TouchableOpacity> */}
+					{!followed ? (
+						<TouchableOpacity style={AllFeedScreenStyle.followButton} onPress={followHandler}>
+							<Text style={AllFeedScreenStyle.followButtonText}>Follow</Text>
+						</TouchableOpacity>
+					) : (
+						<TouchableOpacity style={AllFeedScreenStyle.unfollowButton} onPress={followHandler}>
+							<Text style={AllFeedScreenStyle.unfollowButtonText}>Unfollow</Text>
+						</TouchableOpacity>
+					)}
 				</View>
 
 				<View style={AllFeedScreenStyle.postedImageView}>
