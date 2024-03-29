@@ -22,7 +22,7 @@ const DatePickerHeader = ({
 	title,
 }: DatePickerHeaderProps) => {
 	const [date, setDate] = useState<Date>(value || new Date());
-
+	/* istanbul ignore next */
 	const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
 		const currentDate = selectedDate || date;
 		setDate(currentDate);

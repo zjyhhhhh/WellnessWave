@@ -75,6 +75,7 @@ const PostCard = ({ data, navigation }: PostCardProps) => {
 			onPress={navigateToPostDetail}
 			activeOpacity={1}
 			style={[AllFeedScreenStyle.eachPostStyle]}
+			testID="post-card"
 		>
 			<View style={AllFeedScreenStyle.eachPostStyle}>
 				<View style={AllFeedScreenStyle.topHeader}>

@@ -10,6 +10,7 @@ interface DailyHistoryClassProps {
 	type: "Diet" | "Sports";
 	data: string[];
 	IconComponent: React.ElementType;
+	testID?: string;
 }
 
 const styles = StyleSheet.create({
@@ -69,9 +70,9 @@ const Row = ({ iconName, IconComponent }: RowProps) => {
 	);
 };
 
-const DailyHistoryClass = ({ type, data, IconComponent }: DailyHistoryClassProps) => {
+const DailyHistoryClass = ({ type, data, IconComponent, testID }: DailyHistoryClassProps) => {
 	return (
-		<View style={styles.dailyHistoryDetailClassContainer}>
+		<View style={styles.dailyHistoryDetailClassContainer} testID={testID}>
 			<View style={styles.dailyHistoryDetailClassHeader}>
 				<Text style={styles.dailyHistoryDetailClassTitle}>{type}</Text>
 				<AntDesign name="arrowright" size={16} color={Colors.darkGray} />

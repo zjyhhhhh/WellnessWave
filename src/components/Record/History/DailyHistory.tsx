@@ -45,10 +45,10 @@ const DailyHistoryRecord = ({ date, diet, sports }: DailyHistoryRecordProps) => 
 			<Text style={styles.dailyHistoryTitle}>{date}</Text>
 			<View style={styles.dailyHistoryDetailContainer}>
 				{diet.length > 0 && (
-					<DailyHistoryClass type="Diet" data={diet} IconComponent={FoodIconComponent} />
+					<DailyHistoryClass type="Diet" data={diet} IconComponent={FoodIconComponent} testID="diet-history"/>
 				)}
 				{sports.length > 0 && (
-					<DailyHistoryClass type="Sports" data={sports} IconComponent={SportsIconComponent} />
+					<DailyHistoryClass type="Sports" data={sports} IconComponent={SportsIconComponent} testID="sports-history"/>
 				)}
 			</View>
 		</View>
