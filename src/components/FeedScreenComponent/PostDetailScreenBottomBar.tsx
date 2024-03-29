@@ -8,8 +8,8 @@ import { AllFeedScreenStyle } from "../../screens/FeedScreen/styles";
 import Colors from "../../constants/Colors";
 
 interface PostData {
-	postTitle: string;
-	postPersonImage: any;
+	postAuthor: string;
+	postPersonImage: string;
 	postImage: any;
 	postText: string;
 	postDate: string;
@@ -18,6 +18,7 @@ interface PostData {
 	dislikes: number;
 	isDisliked: boolean;
 	postId: string;
+	followed: boolean;
 }
 
 interface PostDetailScreenBottomBarProps {
@@ -43,9 +44,9 @@ const PostDetailScreenBottomBar = ({ data, commentCount }: PostDetailScreenBotto
 				onChangeText={setInput}
 				onSubmitEditing={async () => {
 					const userToken = await AsyncStorage.getItem("userToken");
-					const formData = new FormData();
-
-					formData.append("comment", input);
+					const username = await AsyncStorage.getItem("username");
+					const nickname = await AsyncStorage.getItem("nickname");
+					const avatar = await AsyncStorage.getItem("avatar");
 					if (input !== "") {
 						try {
 							const response = await fetch(`http://127.0.0.1:8000/add_comment/${data.postId}`, {
@@ -54,7 +55,15 @@ const PostDetailScreenBottomBar = ({ data, commentCount }: PostDetailScreenBotto
 									"Content-Type": "application/json",
 									Authorization: `${userToken}`,
 								},
-								body: formData,
+								body: JSON.stringify({
+									contentText: input,
+									author: username,
+									authorInfo: {
+										username: username,
+										nickname: nickname,
+										avatar: avatar,
+									},
+								}),
 							});
 							if (response.ok) {
 								setInput("");
