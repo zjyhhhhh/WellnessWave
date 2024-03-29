@@ -1,3 +1,4 @@
+import asyncio
 import base64
 from datetime import datetime
 import os
@@ -10,6 +11,7 @@ from models import CommentModel, PostContentModel, PostModel, UserModel, DietMod
 from passlib.context import CryptContext
 from pydantic import ConfigDict, BaseModel, Field, EmailStr
 import jwt
+import requests
 
 load_dotenv()
 
@@ -139,8 +141,26 @@ async def login(email: EmailStr = Body(...), password: str = Body(...)):
     user_profile = await userProfileCollections.find_one(
         {"_id": user_dict["_id"]})
 
+    # encode the downloaded image to base64
+    avatar = imageHanlder.fetch_image_url_from_s3(
+        "wellnesswave-storage", user_profile["userInfo"]["avatar"])
+
+    def get_image_as_base64(url):
+        # 发送 GET 请求获取图片数据
+        response = requests.get(url)
+
+        # 确保请求成功
+        if response.status_code == 200:
+            # 将图片数据转换为 Base64 编码
+            return base64.b64encode(response.content).decode('utf-8')
+        else:
+            raise Exception(
+                f"Failed to fetch image. Status code: {response.status_code}")
+    avatar_base64 = get_image_as_base64(avatar)
+
     return {"access_token": token, "token_type": "bearer", "username": user_dict["_id"],
-            "nickname": user_profile["userInfo"]["nickname"], "avatar": user_profile["userInfo"]["avatar"]}
+            "nickname": user_profile["userInfo"]["nickname"], "avatar": user_profile["userInfo"]["avatar"],
+            "local_avatar": avatar_base64}
 
 # post a new post
 
@@ -207,6 +227,29 @@ async def get_posts(request: Request):
     }
 
 
+@app.get("/get_focus_posts/", response_model_by_alias=True)
+async def get_posts(request: Request):
+    username = getattr(request.state, 'username', None)
+    user = await userProfileCollections.find_one(
+        {"_id": username}, {"followingList": 1}
+    )
+    cursor = postCollections.find().sort("postDate", -1)
+    posts = await cursor.to_list(length=10)
+    user_following_list = user.get("followingList", [])
+
+    posts = [post for post in posts if post["author"] in user_following_list]
+    for post in posts:
+        post["_id"] = str(post["_id"])
+        post["followed"] = post["author"] in user.get("followingList", [])
+        post["postContent"]["contextImage"][0] = imageHanlder.fetch_image_url_from_s3(
+            "wellnesswave-storage", post["postContent"]["contextImage"][0])
+        post["authorInfo"]["avatar"] = imageHanlder.fetch_image_url_from_s3(
+            "wellnesswave-storage", post["authorInfo"]["avatar"])
+    return {
+        "posts": posts
+    }
+
+
 @app.get("/get_post/{postId}", response_model_by_alias=True)
 async def get_post(postId: str):
     post = await postCollections.find_one({"_id": ObjectId(postId)})
@@ -215,6 +258,40 @@ async def get_post(postId: str):
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
     post["_id"] = str(post["_id"])
     return post
+
+
+@app.get("/get_profile", response_model_by_alias=True)
+async def get_profile(request: Request):
+    username = getattr(request.state, 'username', None)
+    user = await userProfileCollections.find_one({"_id": username})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    async def fetch_post(post_id):
+        post = await postCollections.find_one({"_id": ObjectId(post_id)})
+        if post is not None:
+            post["_id"] = str(post["_id"])
+            post["followed"] = post["author"] in user.get("followingList", [])
+            post["postContent"]["contextImage"][0] = imageHanlder.fetch_image_url_from_s3(
+                "wellnesswave-storage", post["postContent"]["contextImage"][0])
+            post["authorInfo"]["avatar"] = imageHanlder.fetch_image_url_from_s3(
+                "wellnesswave-storage", post["authorInfo"]["avatar"])
+        return post
+
+    postIds = user.get("postList", [])
+    likedPostIds = user.get("likeList", [])
+
+    userProfile = {
+        "username": user["_id"],
+        "followers": len(user.get("followerList", [])),
+        "following": len(user.get("followingList", [])),
+        "posts": await asyncio.gather(*(fetch_post(postId) for postId in postIds)),
+        "likedPosts": await asyncio.gather(*(fetch_post(postId) for postId in likedPostIds))
+    }
+    print(userProfile["posts"])
+
+    return userProfile
 
 # comment
 
