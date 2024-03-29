@@ -7,19 +7,10 @@ import Colors from "../constants/Colors";
 import { MomentStackParamList } from "../../types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import AllFeedScreen from "./FeedScreen/AllFeedScreen";
+import FocusFeedScreen from "./FeedScreen/FocusFeedScreen";
 
 type Props = NativeStackScreenProps<MomentStackParamList, "Feed">;
 const Tab = createMaterialTopTabNavigator();
-
-const FocusFeedScreen = ({}) => {
-	return (
-		<SafeAreaView>
-			<View>
-				<Text>Focus Screen</Text>
-			</View>
-		</SafeAreaView>
-	);
-};
 
 const FeedScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 	return (

@@ -34,12 +34,12 @@ const LoginScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 			});
 			if (response.ok) {
 				const data = await response.json();
-
 				AsyncStorage.setItem("userToken", data.access_token);
 				AsyncStorage.setItem("tokenType", data.token_type);
 				AsyncStorage.setItem("username", data.username);
 				AsyncStorage.setItem("nickname", data.nickname);
 				AsyncStorage.setItem("avatar", data.avatar);
+				AsyncStorage.setItem("avatarLocal", data.local_avatar);
 
 				navigate("Home");
 			} else {
