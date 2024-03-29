@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
-import AllFeedScreen from "../../src/screens/FeedScreen/AllFeedScreen";
-import ThumbsButton from "../../src/components/ThumbsButton";
+import AllFeedScreen from "../../../src/screens/FeedScreen/AllFeedScreen";
+import ThumbsButton from "../../../src/components/ThumbsButton";
 import  {AntDesign} from '@expo/vector-icons';
 
 describe('AllFeedScreen', () => {

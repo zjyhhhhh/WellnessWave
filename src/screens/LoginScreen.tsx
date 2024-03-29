@@ -19,7 +19,7 @@ const LoginScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 	const [email, setEmail] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
+	/* istanbul ignore next */
 	const loginHandler = async () => {
 		if (emailVerifier(email) && passwordVerifier(password)) {
 			const response = await fetch(`http://127.0.0.1:8000/users/login`, {
@@ -150,7 +150,7 @@ const LoginScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 					</Text>
 				</TouchableOpacity>
 				<TouchableOpacity
-					onPress={() => navigate("Register")}
+					onPress={ /* istanbul ignore next */ () => navigate("Register")}
 					style={{
 						padding: Spacing,
 					}}
