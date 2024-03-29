@@ -20,6 +20,7 @@ import LikedPostsScreen from "./LikedPostsScreen";
 import { createContext, useEffect, useMemo, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused } from "@react-navigation/native";
+import { PostsContext } from "../../contexts/PostContext";
 
 type Props = NativeStackScreenProps<ProfileStackParamList, "Main">;
 
@@ -151,7 +152,6 @@ interface PostsContextType {
 	posts: PostData[];
 	likedPosts: PostData[];
 }
-export const PostsContext = createContext<PostsContextType>({ posts: [], likedPosts: [] });
 
 const MainScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 	const isFocused = useIsFocused();

@@ -3,7 +3,7 @@ import PostCard from "../../components/FeedScreenComponent/PostCard";
 import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { PostData } from "../../../types";
-import { PostsContext } from "./MainScreen";
+import { PostsContext } from "../../contexts/PostContext";
 
 type TopTabParamList = {
 	MyPosts: undefined;
