@@ -6,8 +6,6 @@ import Font from "../../constants/Font";
 import { width } from "../../constants/Layout";
 import React, { useState } from 'react';
 
-
-
 type Props = NativeStackScreenProps<ProfileStackParamList, "FansUsers">;
 
 const data = [

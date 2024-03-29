@@ -47,7 +47,7 @@ const PostImageButton = () => {
 
 	return (
 		<View style={PostImageButtonStyle.container}>
-			<TouchableOpacity onPress={pickImage}>
+			<TouchableOpacity onPress={pickImage} testID="post-image-button">
 				<AntDesign name="form" size={50} color="black" />
 			</TouchableOpacity>
 		</View>

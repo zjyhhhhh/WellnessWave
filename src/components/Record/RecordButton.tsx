@@ -48,7 +48,7 @@ const RecordButton = ({ type, pressHandler }: RecordButtonProps) => {
 		<>
 			<TouchableOpacity style={styles.recordButtonContainer} onPress={pressHandler}>
 				<View style={styles.recordButtonIcon}>
-					<IconComponent />
+					<IconComponent testID={`${type}-icon`}/>
 				</View>
 				<Text style={styles.recordButtonText}>{type}</Text>
 			</TouchableOpacity>
