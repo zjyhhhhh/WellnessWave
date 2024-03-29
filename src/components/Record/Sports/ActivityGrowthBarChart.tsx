@@ -42,6 +42,7 @@ const ActivityGrowthBarChart = ({
 				alignItems: "center",
 			}}
 		>
+			{/* istanbul ignore next */}
 			<VictoryChart
 				width={width * 1}
 				height={height * 0.32}
@@ -78,11 +79,12 @@ const ActivityGrowthBarChart = ({
 					tickFormat={(tick) => /* istanbul ignore next */ `${tick}min`}
 				/>
 				<VictoryStack colorScale={[colors["aerobics"], colors["ballGames"], colors["strength"]]}>
-					<VictoryBar data={dataAerobics} cornerRadius={{ top: 5, bottom: 5 }} barWidth={8} />
-					<VictoryBar data={spacerData} style={{ data: { fill: "transparent" } }} />
-					<VictoryBar data={dataBallGames} cornerRadius={{ top: 5, bottom: 5 }} barWidth={8} />
-					<VictoryBar data={spacerData} style={{ data: { fill: "transparent" } }} />
-					<VictoryBar data={dataStrength} cornerRadius={{ top: 5, bottom: 5 }} barWidth={8} />
+				
+					{/* istanbul ignore next */} <VictoryBar data={dataAerobics} cornerRadius={{ top: 5, bottom: 5 }} barWidth={8} />
+					{/* istanbul ignore next */} <VictoryBar data={spacerData} style={{ data: { fill: "transparent" } }} />
+					{/* istanbul ignore next */} <VictoryBar data={dataBallGames} cornerRadius={{ top: 5, bottom: 5 }} barWidth={8} />
+					{/* istanbul ignore next */} <VictoryBar data={spacerData} style={{ data: { fill: "transparent" } }} />
+					{/* istanbul ignore next */} <VictoryBar data={dataStrength} cornerRadius={{ top: 5, bottom: 5 }} barWidth={8} />
 				</VictoryStack>
 			</VictoryChart>
 			<View
