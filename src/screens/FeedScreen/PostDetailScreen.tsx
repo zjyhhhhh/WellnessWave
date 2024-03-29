@@ -32,7 +32,6 @@ const PostDetailScreen = ({ navigation, route }: Props) => {
 					Authorization: `${userToken}`,
 				},
 			});
-			console.log(followed);
 			setFollowed(!followed);
 		} catch (error) {
 			console.error("Error following user:", error);

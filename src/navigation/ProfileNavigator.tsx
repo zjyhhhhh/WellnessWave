@@ -6,7 +6,6 @@ import SettingScreen from "../screens/Profile/SettingScreen";
 import NotificationScreen from "../screens/Profile/NotificationScreen";
 import FocusUsersScreen from "../screens/Profile/FocusUsers";
 import FansUsersScreen from "../screens/Profile/FansUsers";
-
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
 
 const ProfileNavigator = ({}) => {
