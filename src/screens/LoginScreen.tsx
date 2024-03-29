@@ -22,7 +22,7 @@ const LoginScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 
 	const loginHandler = async () => {
 		if (emailVerifier(email) && passwordVerifier(password)) {
-			const response = await fetch(`http:3.17.14.65:8000/users/login`, {
+			const response = await fetch(`http://127.0.0.1:8000/users/login`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -32,13 +32,14 @@ const LoginScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 					password,
 				}),
 			});
-			console.log(response);
 			if (response.ok) {
 				const data = await response.json();
 
 				AsyncStorage.setItem("userToken", data.access_token);
 				AsyncStorage.setItem("tokenType", data.token_type);
 				AsyncStorage.setItem("username", data.username);
+				AsyncStorage.setItem("nickname", data.nickname);
+				AsyncStorage.setItem("avatar", data.avatar);
 
 				navigate("Home");
 			} else {

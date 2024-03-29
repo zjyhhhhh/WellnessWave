@@ -32,8 +32,9 @@ export type RecordStackParamList = {
 };
 
 interface PostData {
-	postTitle: string;
-	postPersonImage: any;
+	postAuthor: string;
+	postAuthorName: string;
+	postPersonImage: string;
 	postImage: any;
 	postText: string;
 	postDate: string;
@@ -42,4 +43,5 @@ interface PostData {
 	dislikes: number;
 	isDisliked: boolean;
 	postId: string;
+	followed: boolean;
 }

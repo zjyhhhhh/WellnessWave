@@ -35,7 +35,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 		) {
 			const response = await fetch(
 				// `${process.env.EXPO_PUBLIC_API_URL}:${process.env.EXPO_PUBLIC_PORT}/users/register`,
-				`http:3.17.14.65:8000/users/register`,
+				`http://127.0.0.1:8000/users/register`,
 				{
 					method: "POST",
 					headers: {

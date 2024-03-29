@@ -21,10 +21,25 @@ const PostImageScreen: React.FC<Props> = ({ route, navigation }) => {
 	const { imageBase64 } = route.params;
 	const [contextText, setContextText] = useState("");
 
-	async function sendPost(contextText: string, photoURIs: string[], token: string) {
+	async function sendPost(
+		contextText: string,
+		photoURIs: string[],
+		token: string,
+		username: string,
+		nickname: string,
+		avatar: string
+	) {
 		const postData = {
-			contextText: contextText,
-			contextImage: photoURIs, // Array of base64 encoded strings
+			postContent: {
+				contextText: contextText,
+				contextImage: photoURIs, // Array of base64 encoded strings
+			},
+			author: username,
+			authorInfo: {
+				username: username,
+				nickname: nickname,
+				avatar: avatar,
+			},
 		};
 
 		try {
@@ -48,8 +63,11 @@ const PostImageScreen: React.FC<Props> = ({ route, navigation }) => {
 
 	const handlePress = async () => {
 		const userToken = await AsyncStorage.getItem("userToken");
-		if (userToken) {
-			await sendPost(contextText, imageBase64, userToken);
+		const username = await AsyncStorage.getItem("username");
+		const nickname = await AsyncStorage.getItem("nickname");
+		const avatar = await AsyncStorage.getItem("avatar");
+		if (userToken && username && nickname && avatar) {
+			await sendPost(contextText, imageBase64, userToken, username, nickname, avatar);
 		}
 	};
 
