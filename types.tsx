@@ -19,6 +19,7 @@ export type ProfileStackParamList = {
 	Edit: undefined;
 	FocusUsers: undefined;
 	FansUsers: undefined;
+	MyPosts: { data: PostData[] };
 };
 
 export type RecordStackParamList = {
@@ -31,7 +32,7 @@ export type RecordStackParamList = {
 	LogHealthInfoScreen: undefined;
 };
 
-interface PostData {
+export interface PostData {
 	postAuthor: string;
 	postAuthorName: string;
 	postPersonImage: string;
