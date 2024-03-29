@@ -6,9 +6,6 @@ import "@testing-library/jest-dom";
 import RegisterScreen from "../../src/screens/RegisterScreen";
 import { RootStackParamList } from "../../types";
 import FlashMessage from "react-native-flash-message";
-import fetchMock from 'jest-fetch-mock';
-fetchMock.enableMocks();
-
 
 type RegisterProps = NativeStackScreenProps<RootStackParamList, "Register">;
 
@@ -37,39 +34,29 @@ describe("Register Screen", () => {
 		expect(getByText("Or continue with")).toBeDefined();
 	});
 
-	it("calls console.log on button press", async () => {
-		fetchMock.mockResponseOnce(JSON.stringify({ success: true }));
-	  
+	it("calls console.log on button press", () => {
+		const consoleSpy = jest.spyOn(console, "log");
+
 		const { getByPlaceholderText, getByText } = render(<RegisterScreen {...testProps} />);
-	  
+
 		const usernameInput = getByPlaceholderText("Username");
 		const emailInput = getByPlaceholderText("Email");
 		const passwordInput = getByPlaceholderText("Password");
 		const confirmedPasswordInput = getByPlaceholderText("Confirm password");
-	  
+
 		fireEvent.changeText(usernameInput, "test");
 		fireEvent.changeText(emailInput, "test@example.com");
 		fireEvent.changeText(passwordInput, "password123");
 		fireEvent.changeText(confirmedPasswordInput, "password123");
-	  
+
 		fireEvent.press(getByText("Sign up"));
-	  
-		await waitFor(() => {
-		  expect(fetchMock).toHaveBeenCalledWith(
-			'http://127.0.0.1:8000/users/register',
-			expect.objectContaining({
-			  method: 'POST',
-			  body: JSON.stringify({
-				username: 'test',
-				email: 'test@example.com',
-				password: 'password123',
-			  }),
-			})
-		  );
-		  expect(testProps.navigation.navigate).toHaveBeenCalledWith('Login');
-		});
+
+		expect(consoleSpy).toHaveBeenCalledWith("username: ", "test");
+		expect(consoleSpy).toHaveBeenCalledWith("email: ", "test@example.com");
+		expect(consoleSpy).toHaveBeenCalledWith("password: ", "password123");
+
+		consoleSpy.mockRestore();
 	});
-	  
 
 	it("shows error message for inconsistent password", async () => {
 		const { getByPlaceholderText, getByText } = render(

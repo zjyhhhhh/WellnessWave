@@ -20,13 +20,11 @@ describe("Feed Screen", () => {
 	const testProps = createTestProps();
 
 	it("displays the 'Feed Screen' text", () => {
-		const { getByTestId } = render(
+		const { getByText } = render(
 			<NavigationContainer>
 				<FeedScreen {...testProps} />
 			</NavigationContainer>
 		);
-		expect(getByTestId("all-feed-tab")).toBeTruthy();
-		expect(getByTestId("focus-feed-tab")).toBeTruthy();
+		expect(getByText("All Screen")).toBeTruthy();
 	});
-
 });

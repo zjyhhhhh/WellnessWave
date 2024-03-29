@@ -48,7 +48,6 @@ const RegisterScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
 					}),
 				}
 			);
-			/* istanbul ignore next */
 			if (response.ok) {
 				navigate("Login");
 			} else {
