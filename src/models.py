@@ -251,3 +251,29 @@ class SportsModel(BaseModel):
                 "sports": [{"name": "swimming", "duration": 30}]
             }
         }
+
+
+class BasicInfo(BaseModel):
+    height: Optional[float] = Field(None, example=170)
+    weight: Optional[float] = Field(None, example=60)
+    bmi: Optional[float] = Field(default=None, example=20.76)
+
+
+class HealthIndex(BaseModel):
+    heartRate: Optional[int] = Field(None, example=60)
+    bloodSugar: Optional[float] = Field(None, example=3.5)
+    bloodPressure: Optional[List[int]] = Field(None, example=[80, 120])
+
+
+class BodyMeasurement(BaseModel):
+    chest: Optional[float] = Field(None, example=90)
+    waist: Optional[float] = Field(None, example=70)
+    hip: Optional[float] = Field(None, example=90)
+
+
+class HealthInfoModel(BaseModel):
+    username: str = Field(...)
+    log_date: Optional[datetime] = Field(default_factory=datetime.now)
+    basicInfo: Optional[BasicInfo]
+    healthIndex: Optional[HealthIndex]
+    bodyMeasurement: Optional[BodyMeasurement]

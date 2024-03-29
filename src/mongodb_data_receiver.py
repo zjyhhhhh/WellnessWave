@@ -7,7 +7,7 @@ from fastapi import FastAPI, Body, Form, HTTPException, Request, status, Query
 from dotenv import load_dotenv
 import motor.motor_asyncio
 from image_handler import ImageHandler
-from models import CommentModel, PostContentModel, PostModel, UserModel, DietModel, SportsModel, UserProfileModel, UserInformationModel
+from models import CommentModel, HealthInfoModel, PostContentModel, PostModel, UserModel, DietModel, SportsModel, UserProfileModel, UserInformationModel
 from passlib.context import CryptContext
 from pydantic import ConfigDict, BaseModel, Field, EmailStr
 import jwt
@@ -54,6 +54,7 @@ userCollections = db.get_collection("users")
 postCollections = db.get_collection("posts")
 dietCollections = db.get_collection("diets")
 sportCollections = db.get_collection("sports")
+heathCollections = db.get_collection("health")
 userProfileCollections = db.get_collection("user_profiles")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -373,6 +374,58 @@ async def follow(request: Request, userId: str, follow: bool):
 
     return {"message": "Follow status updated successfully."}
 
+
+@app.get("/get_user_followings/")
+async def get_user_followings(request: Request):
+    username = getattr(request.state, 'username', None)
+    user = await userProfileCollections.find_one({"_id": username})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    followingList = user.get("followingList", [])
+    followings = await userProfileCollections.find({"_id": {"$in": followingList}}).to_list(None)
+
+    for following in followings:
+        following["follow"] = True
+        following["nickname"] = following["userInfo"]["nickname"]
+        following["avatar"] = imageHanlder.fetch_image_url_from_s3(
+            "wellnesswave-storage", following["userInfo"]["avatar"])
+        following["username"] = str(following["_id"])
+        del following["_id"]
+        del following["postList"]
+        del following["likeList"]
+        del following["followingList"]
+        del following["followerList"]
+        del following["userInfo"]
+    print(followings)
+    return followings
+
+
+@app.get("/get_user_followers/")
+async def get_user_followers(request: Request):
+    username = getattr(request.state, 'username', None)
+    user = await userProfileCollections.find_one({"_id": username})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    followerList = user.get("followerList", [])
+    followers = await userProfileCollections.find({"_id": {"$in": followerList}}).to_list(None)
+
+    for follower in followers:
+        # check if the user is following the follower
+        follower["follow"] = True if username in follower.get(
+            "followingList", []) else False
+        follower["nickname"] = follower["userInfo"]["nickname"]
+        follower["avatar"] = imageHanlder.fetch_image_url_from_s3(
+            "wellnesswave-storage", follower["userInfo"]["avatar"])
+        follower["username"] = str(follower["_id"])
+        del follower["_id"]
+        del follower["postList"]
+        del follower["likeList"]
+        del follower["followingList"]
+        del follower["followerList"]
+        del follower["userInfo"]
+    return followers
 # get focus posts
 
 
@@ -575,3 +628,75 @@ async def get_user_diets_sports(request: Request):
                        key=lambda x: x['date'], reverse=True)
 
     return data_list
+
+# post_user_health_info
+
+
+@app.post("/post_user_health_info/", response_model_by_alias=True, status_code=status.HTTP_201_CREATED)
+async def post_user_health_info(request: Request, health_info: HealthInfoModel = Body(...)):
+    await heathCollections.insert_one(health_info.model_dump(by_alias=True))
+    return {"message": "Health Info record successfully."}
+
+
+@app.get("/get_user_health_info/")
+async def get_user_health_info(request: Request):
+    # return HealthData {
+    # 	basicInfo: {
+    # 		height: number;
+    # 		weight: number;
+    # 		bmi: number;
+    # 	};
+    # 	healthIndex: {
+    # 		heartRate: number[];
+    # 		bloodSugar: number[];
+    # 		bloodPressure: number[];
+    # 	};
+    # 	bodyMeasurement: {
+    # 		chest: [number, boolean | undefined];
+    # 		waist: [number, boolean | undefined];
+    # 		hip: [number, boolean | undefined];
+    # 	};
+    # }
+    username = getattr(request.state, 'username', None)
+    cursor = heathCollections.find(
+        {"username": username}, sort=[("log_date", -1)])
+    # sort by date latest to oldest
+    documents = await cursor.to_list(length=None)
+
+    def compare_body_measurement(curr, prev):
+        if prev == 0:
+            return None
+        elif prev == curr:
+            return None
+        elif curr > prev:
+            return True
+        else:
+            return False
+
+    if documents:
+        result = {
+            "basicInfo": {
+                # for latest record
+                "height": documents[0]["basicInfo"]["height"],
+                "weight": documents[0]["basicInfo"]["weight"],
+                # round to 1 decimal place
+                "bmi": round(documents[0]["basicInfo"]["bmi"], 1)
+            },
+            "healthIndex": {
+                # for all records in the list and delete null values
+                "heartRate": [doc["healthIndex"]["heartRate"] for doc in documents],
+                "bloodSugar": [doc["healthIndex"]["bloodSugar"] for doc in documents],
+                "bloodPressure": [doc["healthIndex"]["bloodPressure"][1] for doc in documents]
+            },
+            "bodyMeasurement": {
+                # for latest record and compare to previous record, if no previous record, set to undefined
+                "chest": [documents[0]["bodyMeasurement"]["chest"], compare_body_measurement(documents[0]["bodyMeasurement"]["chest"], documents[1]["bodyMeasurement"]["chest"]) if len(documents) > 1 else None],
+                "waist": [documents[0]["bodyMeasurement"]["waist"], compare_body_measurement(documents[0]["bodyMeasurement"]["waist"], documents[1]["bodyMeasurement"]["waist"]) if len(documents) > 1 else None],
+                "hip": [documents[0]["bodyMeasurement"]["hip"], compare_body_measurement(documents[0]["bodyMeasurement"]["hip"], documents[1]["bodyMeasurement"]["hip"]) if len(documents) > 1 else None]
+            },
+            # current - last checked date in days
+            "lastCheckedDate": (datetime.now() - documents[0]["log_date"]).days
+        }
+        print(documents[0])
+        print(result)
+        return result
