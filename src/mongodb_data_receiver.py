@@ -100,12 +100,6 @@ async def create_user(user: UserModel = Body(...)):
     new_user = await userCollections.insert_one(user.model_dump(by_alias=True))
     created_user = await userCollections.find_one({"_id": new_user.inserted_id})
 
-    # def encode_avatar_base64(image_path):
-    #     with open(image_path, "rb") as image_file:
-    #         encoded_string = base64.b64encode(image_file.read())
-    #     return encoded_string
-
-    # new user profile and user infomation model
     user_info = UserInformationModel(
         username=created_user["_id"],
         nickname="User" + str(int(datetime.now().timestamp()))[-6:],
@@ -169,7 +163,6 @@ async def login(email: EmailStr = Body(...), password: str = Body(...)):
 @app.post("/send_posts/", status_code=status.HTTP_201_CREATED)
 async def create_post(request: Request, postContent: PostModel = Body(...)):
     try:
-        # save in aws and store the path in the post
         username = getattr(request.state, 'username', None)
         post = postContent.model_dump(by_alias=True)
         aws_path = f"post_images/{str(datetime.now())}/image1.jpg"
@@ -178,7 +171,6 @@ async def create_post(request: Request, postContent: PostModel = Body(...)):
         post["postContent"]["contextImage"][0] = aws_path
 
         created_post = await postCollections.insert_one(post)
-
         await userProfileCollections.update_one(
             {"_id": post["author"]}, {"$push": {"postList": str(created_post.inserted_id)}})
         return {"post_id": str(created_post.inserted_id)}
@@ -444,18 +436,6 @@ async def get_focused_posts(request: Request):
         "posts": posts
     }
 
-# get user profile
-
-
-@app.get("/get_user_profile/{userId}", response_model_by_alias=True)
-async def get_user_profile(userId: str):
-    user = await userCollections.find_one({"_id": userId})
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    user["_id"] = str(user["_id"])
-    return user
-
 
 @app.post("/post_user_diet/", response_model_by_alias=True, status_code=status.HTTP_201_CREATED)
 async def post_user_diet(diets_request: DietModel = Body(...)):
@@ -640,23 +620,6 @@ async def post_user_health_info(request: Request, health_info: HealthInfoModel =
 
 @app.get("/get_user_health_info/")
 async def get_user_health_info(request: Request):
-    # return HealthData {
-    # 	basicInfo: {
-    # 		height: number;
-    # 		weight: number;
-    # 		bmi: number;
-    # 	};
-    # 	healthIndex: {
-    # 		heartRate: number[];
-    # 		bloodSugar: number[];
-    # 		bloodPressure: number[];
-    # 	};
-    # 	bodyMeasurement: {
-    # 		chest: [number, boolean | undefined];
-    # 		waist: [number, boolean | undefined];
-    # 		hip: [number, boolean | undefined];
-    # 	};
-    # }
     username = getattr(request.state, 'username', None)
     cursor = heathCollections.find(
         {"username": username}, sort=[("log_date", -1)])

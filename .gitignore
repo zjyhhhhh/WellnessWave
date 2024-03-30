@@ -2,3 +2,5 @@
 src/__pycache__/*
 src/.env
 tst/.pytest_cache/*
+tst/__pycache__/*
+__pycache__/*
